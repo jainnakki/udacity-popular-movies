@@ -14,13 +14,13 @@ import java.util.List;
  */
 public class AndroidMovies implements Parcelable {
 
-    private List<Integer>genre_ids;
+    private List<Integer>genre_ids = new ArrayList<>();
 
-    private String original_title,poster_path,overview,release_date;
+    private String original_title,poster_path,overview,release_date,genre_names;
 
-    private int id,vote_count;
+    private Integer id,vote_count;
 
-    private float vote_average,popularity;
+    private Float vote_average,popularity;
 
     public static final Creator<AndroidMovies> CREATOR = new Creator<AndroidMovies>() {
         @Override
@@ -47,6 +47,7 @@ public class AndroidMovies implements Parcelable {
         this.poster_path = in.readString();
         this.original_title = in.readString();
         this.genre_ids = in.readArrayList(Integer.class.getClassLoader());
+        this.genre_names = in.readString();
         this.overview = in.readString();
         this.release_date = in.readString();
     }
@@ -68,6 +69,7 @@ public class AndroidMovies implements Parcelable {
         dest.writeString(this.poster_path);
         dest.writeString(this.original_title);
         dest.writeList(this.genre_ids);
+        dest.writeString(this.genre_names);
         dest.writeString(this.overview);
         dest.writeString(this.release_date);
     }
@@ -95,17 +97,21 @@ public class AndroidMovies implements Parcelable {
         return genre_ids;
     }
 
-    public int getId() {
+    public String getGenre_names() {
+        return genre_names;
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public int getVote_count() { return vote_count; }
+    public Integer getVote_count() { return vote_count; }
 
-    public float getUser_rating() {
+    public Float getUser_rating() {
         return vote_average;
     }
 
-    public float getPopularity() {
+    public Float getPopularity() {
         return popularity;
     }
 
@@ -131,17 +137,19 @@ public class AndroidMovies implements Parcelable {
         this.genre_ids = Genre_ids;
     }
 
-    public void setId(int Id) {
+    public void setGenre_names(String Genre_names) { this.genre_names = Genre_names; }
+
+    public void setId(Integer Id) {
         this.id = Id;
     }
 
-    public void setVote_count(int Vote_Count) { this.vote_count = Vote_Count; }
+    public void setVote_count(Integer Vote_Count) { this.vote_count = Vote_Count; }
 
-    public void setUser_rating(float Vote_average) {
+    public void setUser_rating(Float Vote_average) {
         this.vote_average = Vote_average;
     }
 
-    public void setPopularity(float Popularity) {
+    public void setPopularity(Float Popularity) {
         this.popularity = Popularity;
     }
 }

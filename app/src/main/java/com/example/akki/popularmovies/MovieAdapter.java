@@ -14,10 +14,19 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 /**
@@ -25,9 +34,14 @@ import butterknife.ButterKnife;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
-    private List<String> urls = new ArrayList<String>();;
+
     private Context context;
+
+    //public static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
+
     List<AndroidMovies>MoviesList;
+    List<MoviesGenre>GenreList;
+    Map<Integer, String> genreDictionary = null;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -47,9 +61,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     }
 
-    private AndroidMovies addDummyData() {
+    private AndroidMovies addDummyMoviesData() {
         AndroidMovies MovieDummyData = new AndroidMovies();
         MovieDummyData.setOriginal_title("----");
+        MovieDummyData.setPopularity(0.0f);
+        MovieDummyData.setVote_count(0);
+        MovieDummyData.setGenre_names("----");
         //MovieDummyData.setPoster_path("drawable/not_connected.png");
         MovieDummyData.setOverview("----");
         MovieDummyData.setUser_rating(0.0f);
@@ -58,12 +75,39 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         return MovieDummyData;
     }
 
-    public MovieAdapter(Context context, String[] MyURLS) {
+    private MoviesGenre addDummyGenreData() {
+        MoviesGenre GenreDummyData = new MoviesGenre();
+        GenreDummyData.setId(0);
+        GenreDummyData.setName("None");
+
+        return GenreDummyData;
+    }
+
+    public MovieAdapter(Context context) {
         super();
         this.context = context;
-        urls = Arrays.asList(MyURLS);
         this.MoviesList = new ArrayList<>();
-        this.MoviesList.add(addDummyData());
+        this.MoviesList.add(addDummyMoviesData());
+        this.GenreList = new ArrayList<>();
+        this.GenreList.add(addDummyGenreData());
+        genreDictionary = new HashMap<Integer, String>();
+    }
+
+    public void setGenreList(List<MoviesGenre> genreList) {
+        this.GenreList = new ArrayList<>();
+        this.GenreList = genreList;
+        notifyDataSetChanged();
+        MoviesGenre genre;
+
+        if(GenreList!=null) {
+            Log.i("GenreList STATUS: ","NOT NULL!!");
+            for (int i = 0; i < GenreList.size(); i++) {
+                genre = GenreList.get(i);
+                genreDictionary.put(genre.getId(), genre.getName());
+            }
+        } else {
+            Log.i("GenreList STATUS: ","IT IS NULL!!");
+        }
     }
 
     public void setMoviesList(List<AndroidMovies> movieList) {
@@ -85,7 +129,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         final AndroidMovies movies = MoviesList.get(position);
-
+        Log.i("MOVIE ADAPTER", "ID is : " + movies.getId());
+        List<Integer> genreIds = movies.getGenre_ids();
+        String genre_names = "";
+        if(genreIds!=null) {
+            Log.e("genreIds no error", "it is not null!!!");
+            for (int i = 0; i < genreIds.size(); i++)
+                genre_names += genreDictionary.get(genreIds.get(i)) + (i != genreIds.size() - 1 ? "," : "");
+        }
+        else {
+            Log.e("genreIds error", "it is null!!!");
+        }
         if (AppStatus.getInstance(context).isOnline()) {
         holder.progressBar.setVisibility(View.VISIBLE);}
         Log.i("POSTER PATH: ","http://image.tmdb.org/t/p/w185" + movies.getPoster_path());
@@ -108,16 +162,22 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                     }
                 });
 
+        final String finalGenre_names = genre_names;
         holder.moviePoster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, MovieDetails.class);
 
                 AndroidMovies movie = new AndroidMovies();
-                movie.setOriginal_title(movies.getOriginal_title());
-                movie.setPoster_path(movies.getPoster_path());
-                movie.setOverview(movies.getOverview());
+                movie.setVote_count(movies.getVote_count());
+                movie.setId(movies.getId());
                 movie.setUser_rating(movies.getUser_rating());
+                movie.setPopularity(movies.getPopularity());
+                movie.setPoster_path(movies.getPoster_path());
+                movie.setOriginal_title(movies.getOriginal_title());
+                movie.setGenre_ids(movies.getGenre_ids());
+                movie.setGenre_names(finalGenre_names);
+                movie.setOverview(movies.getOverview());
                 movie.setRelease_date(movies.getRelease_date());
                 intent.putExtra("movie_details", movie);
 

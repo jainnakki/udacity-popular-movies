@@ -13,4 +13,5 @@
     <string name="max_rating">/10</string>
     <string name="online_status">You are online!!!!</string>
     <string name="notOnline_status">You are not online!!!!</string>
+    <string name="user_image_content_desc">default image loaded for user</string>
 </resources>

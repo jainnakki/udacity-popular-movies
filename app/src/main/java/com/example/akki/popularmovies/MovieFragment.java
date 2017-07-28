@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindString;
@@ -40,7 +41,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class MovieFragment extends Fragment implements  Callback<MoviesList> {
+public class MovieFragment extends Fragment implements  Callback<MoviesList>  {
 
     @BindView(R.id.my_recycler_view)
     RecyclerView recyclerView;
@@ -58,6 +59,7 @@ public class MovieFragment extends Fragment implements  Callback<MoviesList> {
     private MovieAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     MoviesApiService service;
+    List<MoviesGenre> GenreList;
 
     public static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
     private AndroidMoviesAdapter movieAdapter;
@@ -82,13 +84,12 @@ public class MovieFragment extends Fragment implements  Callback<MoviesList> {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         unbinder = ButterKnife.bind(this,rootView);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycler_view);
         int spanCount = 3; // 3 columns
         int spacing = 50; // 50px
         boolean includeEdge = true;
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, includeEdge));
 
-        mAdapter = new MovieAdapter(getContext(),url);
+        mAdapter = new MovieAdapter(getContext());
         recyclerView.setAdapter(mAdapter);
         mLayoutManager = new GridLayoutManager(getActivity(),3);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -171,6 +172,7 @@ public class MovieFragment extends Fragment implements  Callback<MoviesList> {
             default: Log.d("Endpoint error","End point not accepted, data corrupted!!");
         }
         movieResultCallback.enqueue(this);
+
     }
 
     @Override
@@ -179,12 +181,34 @@ public class MovieFragment extends Fragment implements  Callback<MoviesList> {
         unbinder.unbind();
     }
 
+    void fetchMoviesGenreList() {
+        Call<MoviesGenreList> moviesGenreCallback = service.getMoviesGenreList();
+        moviesGenreCallback.enqueue(new Callback<MoviesGenreList>() {
+
+            @Override
+            public void onResponse(Call<MoviesGenreList> call, Response<MoviesGenreList> response) {
+                int code = response.code();
+                Log.i("genre response code", String.valueOf(response.code()));
+                if(call.isExecuted())
+                    mAdapter.setGenreList(response.body().getResults());
+            }
+
+            @Override
+            public void onFailure(Call<MoviesGenreList> call, Throwable t) {
+                Log.i("GENRE RESPONSE FAILED",t.getMessage());
+            }
+        });
+    }
+
     @Override
     public void onResponse(Call<MoviesList> call, Response<MoviesList> response) {
 
         int code = response.code();
         Log.i("response code", String.valueOf(response.code()));
-        mAdapter.setMoviesList(response.body().getResults());
+        if(call.isExecuted()){
+            mAdapter.setMoviesList(response.body().getResults());
+            fetchMoviesGenreList();
+        }
     }
 
     @Override

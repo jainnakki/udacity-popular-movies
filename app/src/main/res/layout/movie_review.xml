@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:padding="5dp"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_corner">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/review_no_user_image"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/no_user_image"
+                android:contentDescription="@string/user_image_content_desc"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/review_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:paddingLeft="5dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:text="HELLO"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/review_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="13sp"
+            android:text="Very epic movie, strong storyline and also stunning graphics.. This is very recommended movie to watch with entire family."/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#ccc" />
+
+</FrameLayout>
