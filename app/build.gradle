@@ -40,4 +40,6 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 
     compile 'com.ms-square:expandableTextView:0.1.4'
+
+    compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
 }

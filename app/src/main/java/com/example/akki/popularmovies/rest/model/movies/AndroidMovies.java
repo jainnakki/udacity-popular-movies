@@ -1,11 +1,8 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest.model.movies;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
-import android.widget.ImageView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,13 +11,13 @@ import java.util.List;
  */
 public class AndroidMovies implements Parcelable {
 
-    private List<Integer>genre_ids = new ArrayList<>();
+    private List<Integer> genre_ids = new ArrayList<>();
 
-    private String original_title,poster_path,overview,release_date,genre_names;
+    private String original_title, poster_path, overview, release_date, genre_names;
 
-    private Integer id,vote_count;
+    private Integer id, vote_count, favourite = 0;
 
-    private Float vote_average,popularity;
+    private Float vote_average, popularity;
 
     public static final Creator<AndroidMovies> CREATOR = new Creator<AndroidMovies>() {
         @Override
@@ -34,7 +31,8 @@ public class AndroidMovies implements Parcelable {
         }
     };
 
-    public AndroidMovies(){}
+    public AndroidMovies() {
+    }
 
     public AndroidMovies(Parcel in) {
 
@@ -50,6 +48,7 @@ public class AndroidMovies implements Parcelable {
         this.genre_names = in.readString();
         this.overview = in.readString();
         this.release_date = in.readString();
+        this.favourite = in.readInt();
     }
 
     @Override
@@ -72,8 +71,8 @@ public class AndroidMovies implements Parcelable {
         dest.writeString(this.genre_names);
         dest.writeString(this.overview);
         dest.writeString(this.release_date);
+        dest.writeInt(this.favourite);
     }
-
 
 
     //getter methods
@@ -105,7 +104,9 @@ public class AndroidMovies implements Parcelable {
         return id;
     }
 
-    public Integer getVote_count() { return vote_count; }
+    public Integer getVote_count() {
+        return vote_count;
+    }
 
     public Float getUser_rating() {
         return vote_average;
@@ -113,6 +114,10 @@ public class AndroidMovies implements Parcelable {
 
     public Float getPopularity() {
         return popularity;
+    }
+
+    public Integer getFavourite() {
+        return favourite;
     }
 
     //setter methods
@@ -137,13 +142,17 @@ public class AndroidMovies implements Parcelable {
         this.genre_ids = Genre_ids;
     }
 
-    public void setGenre_names(String Genre_names) { this.genre_names = Genre_names; }
+    public void setGenre_names(String Genre_names) {
+        this.genre_names = Genre_names;
+    }
 
     public void setId(Integer Id) {
         this.id = Id;
     }
 
-    public void setVote_count(Integer Vote_Count) { this.vote_count = Vote_Count; }
+    public void setVote_count(Integer Vote_Count) {
+        this.vote_count = Vote_Count;
+    }
 
     public void setUser_rating(Float Vote_average) {
         this.vote_average = Vote_average;
@@ -152,4 +161,9 @@ public class AndroidMovies implements Parcelable {
     public void setPopularity(Float Popularity) {
         this.popularity = Popularity;
     }
+
+    public void setFavourite(int newFavourite) {
+        this.favourite = newFavourite;
+    }
+
 }

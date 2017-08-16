@@ -1,4 +1,6 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest.model.video;
+
+import com.example.akki.popularmovies.rest.model.video.MovieVideo;
 
 import java.util.ArrayList;
 

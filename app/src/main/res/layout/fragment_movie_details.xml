@@ -96,17 +96,6 @@
                     android:orientation="horizontal"
                     android:layout_marginBottom="10dp">
 
-                    <!--<TextView-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:layout_column="1"-->
-                        <!--android:layout_marginBottom="10dp"-->
-                        <!--android:layout_marginTop="10dp"-->
-                        <!--android:text="@string/heading_movie_rating"-->
-                        <!--android:textColor="#4885ed"-->
-                        <!--android:textSize="14sp"-->
-                        <!--android:textStyle="bold" />-->
-
                     <CheckBox
                         android:id="@+id/star"
                         android:layout_width="wrap_content"
@@ -164,10 +153,21 @@
                     android:id="@+id/movie_genre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
                     android:paddingLeft="5dp"
                     android:textSize="14sp"
                     android:textColor="#666666" />
+
+                <ToggleButton
+                    android:id="@+id/movie_favourite_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:textOn="Mark as Unfavourite"
+                    android:textOff="Mark as Favourite"
+                    android:textSize="14sp"
+                    android:background="@drawable/rounded_corner"
+                    android:layout_marginBottom="10dp"
+                    android:paddingLeft="5dp"
+                    android:layout_margin="4dp"/>
 
             </LinearLayout>
 
@@ -209,6 +209,8 @@
                 <!--android:textColor="#333"-->
                 <!--android:textSize="15sp"-->
                 <!--android:textStyle="normal" />-->
+
+
 
             <com.ms.square.android.expandabletextview.ExpandableTextView
                 xmlns:android="http://schemas.android.com/apk/res/android"

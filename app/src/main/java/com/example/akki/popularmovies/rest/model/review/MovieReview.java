@@ -1,4 +1,4 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest.model.review;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -14,7 +14,8 @@ public class MovieReview implements Parcelable {
     private String content;
     private String url;
 
-    public MovieReview(){}
+    public MovieReview() {
+    }
 
     public MovieReview(Parcel in) {
         id = in.readString();

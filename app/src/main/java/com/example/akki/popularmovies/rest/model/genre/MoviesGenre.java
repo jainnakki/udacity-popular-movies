@@ -1,4 +1,4 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest.model.genre;
 
 import android.os.Parcel;
 import android.os.Parcelable;

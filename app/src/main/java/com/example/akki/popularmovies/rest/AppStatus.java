@@ -1,4 +1,4 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

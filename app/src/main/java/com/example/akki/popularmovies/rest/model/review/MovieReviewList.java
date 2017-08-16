@@ -1,7 +1,8 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest.model.review;
+
+import com.example.akki.popularmovies.rest.model.review.MovieReview;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Akshay on 28-07-2017.

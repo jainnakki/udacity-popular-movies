@@ -1,4 +1,4 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+
+import com.example.akki.popularmovies.R;
+import com.example.akki.popularmovies.rest.model.review.MovieReview;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,7 @@ public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.
             super(v);
             layout = v;
             ButterKnife.bind(this,v);
+
         }
 
     }

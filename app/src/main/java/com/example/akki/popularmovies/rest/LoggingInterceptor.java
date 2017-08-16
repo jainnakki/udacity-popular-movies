@@ -1,4 +1,4 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest;
 
 import android.util.Log;
 
@@ -15,24 +15,26 @@ import okio.Buffer;
  */
 
 public class LoggingInterceptor implements Interceptor {
-    @Override public okhttp3.Response intercept(Chain chain) throws IOException {
+    @Override
+    public okhttp3.Response intercept(Chain chain) throws IOException {
 
         HttpUrl url = chain.request().url()
                 .newBuilder()
                 .addQueryParameter("api_key", "72b6dbc52bed1237a8eabba476078bc2")
                 .build();
 
-        Request request = chain.request().newBuilder().url(url).build();;
+        Request request = chain.request().newBuilder().url(url).build();
+        ;
 
         long t1 = System.nanoTime();
         String requestLog = String.format("Sending request %s on %s%n%s",
                 request.url(), chain.connection(), request.headers());
         //YLog.d(String.format("Sending request %s on %s%n%s",
         //        request.url(), chain.connection(), request.headers()));
-        if(request.method().compareToIgnoreCase("post")==0){
-            requestLog ="\n"+requestLog+"\n"+bodyToString(request);
+        if (request.method().compareToIgnoreCase("post") == 0) {
+            requestLog = "\n" + requestLog + "\n" + bodyToString(request);
         }
-        Log.d("TAG","request"+"\n"+requestLog);
+        Log.d("TAG", "request" + "\n" + requestLog);
 
         okhttp3.Response response = chain.proceed(request);
         long t2 = System.nanoTime();
@@ -42,7 +44,7 @@ public class LoggingInterceptor implements Interceptor {
 
         String bodyString = response.body().string();
 
-        Log.d("TAG","response"+"\n"+responseLog+"\n"+bodyString);
+        Log.d("TAG", "response" + "\n" + responseLog + "\n" + bodyString);
 
         return response.newBuilder()
                 .body(ResponseBody.create(response.body().contentType(), bodyString))

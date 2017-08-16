@@ -32,6 +32,13 @@
             android:layout_height="wrap_content"
             android:text="@string/string_top_rated"
             android:textSize="10dp" />
+
+        <CheckBox
+            android:id="@+id/checkbox_favourite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/string_favourite"
+            android:textSize="10dp" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

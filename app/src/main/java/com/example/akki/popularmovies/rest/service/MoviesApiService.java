@@ -1,15 +1,14 @@
-package com.example.akki.popularmovies;
+package com.example.akki.popularmovies.rest.service;
 
 /**
  * Created by Akshay on 24-07-2017.
  */
-import java.util.List;
+import com.example.akki.popularmovies.rest.model.review.MovieReviewList;
+import com.example.akki.popularmovies.rest.model.video.MovieVideoList;
+import com.example.akki.popularmovies.rest.model.genre.MoviesGenreList;
+import com.example.akki.popularmovies.rest.model.movies.MoviesList;
 
-import okhttp3.ResponseBody;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.Call;
 
