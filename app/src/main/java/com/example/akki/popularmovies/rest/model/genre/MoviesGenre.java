@@ -12,9 +12,10 @@ public class MoviesGenre implements Parcelable {
     private Integer id;
     private String name;
 
-    public MoviesGenre(){}
+    public MoviesGenre() {
+    }
 
-    public MoviesGenre(Parcel in) {
+    private MoviesGenre(Parcel in) {
         this.id = in.readInt();
         this.name = in.readString();
     }

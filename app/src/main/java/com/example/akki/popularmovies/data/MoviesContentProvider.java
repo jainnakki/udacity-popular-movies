@@ -62,7 +62,7 @@ public class MoviesContentProvider extends ContentProvider {
             case MOVIES:
                 break;
             case MOVIES_ID:
-                // adding the ID to the original query
+
                 queryBuilder.appendWhere(MoviesTable.COLUMN_ID + "="
                         + uri.getLastPathSegment());
                 break;
@@ -73,7 +73,7 @@ public class MoviesContentProvider extends ContentProvider {
         SQLiteDatabase db = database.getWritableDatabase();
         Cursor cursor = queryBuilder.query(db, projection, selection,
                 selectionArgs, null, null, sortOrder);
-        // make sure that potential listeners are getting notified
+
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
         return cursor;

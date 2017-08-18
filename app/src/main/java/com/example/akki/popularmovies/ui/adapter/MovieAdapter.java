@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.akki.popularmovies.rest.AppStatus;
 import com.example.akki.popularmovies.R;
@@ -34,13 +35,11 @@ import butterknife.ButterKnife;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
-    private Context context;
+    private final Context context;
 
-    //public static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
-
-    List<AndroidMovies>MoviesList;
-    List<MoviesGenre>GenreList;
-    Map<Integer, String> genreDictionary = null;
+    private List<AndroidMovies> MoviesList;
+    private List<MoviesGenre> GenreList;
+    private Map<Integer, String> genreDictionary = null;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -48,14 +47,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         public ImageView moviePoster;
         @BindView(R.id.progressBar)
         public ProgressBar progressBar = null;
+        @BindView(R.id.movie_title_home)
+        public TextView movieTitle;
+        @BindView(R.id.movie_popularity_home)
+        public TextView moviePopularity;
 
-        public View layout;
-
-
-        public ViewHolder(View v){
+        public ViewHolder(View v) {
             super(v);
-            layout = v;
-            ButterKnife.bind(this,v);
+            ButterKnife.bind(this, v);
         }
 
     }
@@ -67,7 +66,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         MovieDummyData.setVote_count(0);
         MovieDummyData.setId(0);
         MovieDummyData.setGenre_names("----");
-        //MovieDummyData.setPoster_path("drawable/not_connected.png");
         MovieDummyData.setOverview("----");
         MovieDummyData.setUser_rating(0.0f);
         MovieDummyData.setRelease_date("----");
@@ -90,7 +88,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         this.MoviesList.add(addDummyMoviesData());
         this.GenreList = new ArrayList<>();
         this.GenreList.add(addDummyGenreData());
-        genreDictionary = new HashMap<Integer, String>();
+        genreDictionary = new HashMap<>();
     }
 
     public void setGenreList(List<MoviesGenre> genreList) {
@@ -99,14 +97,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         notifyDataSetChanged();
         MoviesGenre genre;
 
-        if(GenreList!=null) {
-            Log.i("GenreList STATUS: ","NOT NULL!!");
+        if (GenreList != null) {
+            Log.i("GenreList STATUS: ", "NOT NULL!!");
             for (int i = 0; i < GenreList.size(); i++) {
                 genre = GenreList.get(i);
                 genreDictionary.put(genre.getId(), genre.getName());
             }
         } else {
-            Log.i("GenreList STATUS: ","IT IS NULL!!");
+            Log.i("GenreList STATUS: ", "IT IS NULL!!");
         }
     }
 
@@ -119,10 +117,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public MovieAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         //LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.movie_item,parent,false);
-        ViewHolder vh = new ViewHolder(v);
-
-        return vh;
+        View v = inflater.inflate(R.layout.movie_item, parent, false);
+        return new ViewHolder(v);
     }
 
     @Override
@@ -133,38 +129,35 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         List<Integer> genreIds = movies.getGenre_ids();
         String genre_names = "";
         String posterLoadingPath;
-        if(movies.getFavourite() == 0) {
+        if (movies.getFavourite() == 0) {
             posterLoadingPath = "http://image.tmdb.org/t/p/w185" + movies.getPoster_path();
-            if(genreIds!=null) {
+            if (genreIds != null) {
                 Log.d("genreIds no error", "it is not null!!!");
                 int finalGenreIdSize = genreIds.size() > 3 ? 3 : genreIds.size();
                 for (int i = 0; i < finalGenreIdSize; i++)
                     genre_names += genreDictionary.get(genreIds.get(i)) + (i != finalGenreIdSize - 1 ? "," : "");
-            }
-            else {
+            } else {
                 Log.e("genreIds error", "it is null!!!");
             }
-        }
-        else {
+        } else {
             posterLoadingPath = movies.getPoster_path();
             genre_names = movies.getGenre_names();
         }
 
         if (AppStatus.getInstance(context).isOnline()) {
-        holder.progressBar.setVisibility(View.VISIBLE);}
-        Log.i("POSTER PATH: ","http://image.tmdb.org/t/p/w185" + movies.getPoster_path());
+            holder.progressBar.setVisibility(View.VISIBLE);
+        }
+        Log.i("POSTER PATH: ", "http://image.tmdb.org/t/p/w185" + movies.getPoster_path());
 
 
-
-        if(movies.getFavourite() == 0) {
+        if (movies.getFavourite() == 0) {
             Picasso.with(context)
                     .load(posterLoadingPath)
-                    //.resize(400, 400)
                     .fit()
                     .error(R.drawable.error)
-                    .into(holder.moviePoster, new com.squareup.picasso.Callback(){
+                    .into(holder.moviePoster, new com.squareup.picasso.Callback() {
                         @Override
-                        public void onSuccess(){
+                        public void onSuccess() {
                             if (holder.progressBar != null) {
                                 holder.progressBar.setVisibility(View.GONE);
                             }
@@ -176,17 +169,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                         }
                     });
 
-        }
-        else {
+        } else {
             Uri imageUri = Uri.fromFile(new File(posterLoadingPath));
             Picasso.with(context)
                     .load(imageUri)
-                    //.resize(400, 400)
                     .fit()
                     .error(R.drawable.error)
-                    .into(holder.moviePoster, new com.squareup.picasso.Callback(){
+                    .into(holder.moviePoster, new com.squareup.picasso.Callback() {
                         @Override
-                        public void onSuccess(){
+                        public void onSuccess() {
                             if (holder.progressBar != null) {
                                 holder.progressBar.setVisibility(View.GONE);
                             }
@@ -198,6 +189,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                         }
                     });
         }
+
+        holder.movieTitle.setText(movies.getOriginal_title());
+        int popularityScore = (int) Math.ceil(movies.getPopularity());
+        Log.d("POPULARITY SCORE ADAP", String.valueOf(movies.getPopularity()));
+        String pScore = String.valueOf(popularityScore) + "%";
+        holder.moviePopularity.setText(pScore);
 
         final String finalGenre_names = genre_names;
         holder.moviePoster.setOnClickListener(new View.OnClickListener() {
@@ -227,7 +224,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return (MoviesList == null)? 0 : MoviesList.size();
+        return (MoviesList == null) ? 0 : MoviesList.size();
     }
 
 }

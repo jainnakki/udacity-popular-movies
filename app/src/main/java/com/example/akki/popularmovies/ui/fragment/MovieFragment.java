@@ -49,6 +49,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @BindView(R.id.my_recycler_view)
     RecyclerView recyclerView;
+
     @BindView(R.id.checkbox_popular)
     CheckBox popular;
     @BindView(R.id.checkbox_top_rated)
@@ -63,24 +64,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private Unbinder unbinder;
     private MovieAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    MoviesApiService service;
-    List<MoviesGenre> GenreList;
-    List<AndroidMovies> databaseMoviesList = null;
+    private MoviesApiService service;
+    private List<AndroidMovies> databaseMoviesList = null;
 
-    public static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
-    AndroidMovies[] androidMovies;
-    String[] moviePosterPath, url;
-    String[] movieId, movieTitle, movieReleaseDate, movieVoteAverage, movieOverview;
-
+    private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
 
     public MovieFragment() {
-        url = new String[]{"drawable/not_connected.png"};
-        movieId = new String[]{"----"};
-        movieTitle = new String[]{"----"};
-        movieReleaseDate = new String[]{"----"};
-        movieVoteAverage = new String[]{"----"};
-        movieOverview = new String[]{"----"};
+
     }
 
 
@@ -90,16 +80,17 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         unbinder = ButterKnife.bind(this, rootView);
+
         getLoaderManager().initLoader(0, null, this);
 
         int spanCount = 3; // 3 columns
         int spacing = 50; // 50px
         boolean includeEdge = true;
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, includeEdge));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
 
         mAdapter = new MovieAdapter(getContext());
         recyclerView.setAdapter(mAdapter);
-        mLayoutManager = new GridLayoutManager(getActivity(), 3);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
 
         popular.setOnClickListener(new View.OnClickListener() {
@@ -127,12 +118,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             }
         });
 
-
-        //URL - api.themoviedb.org/3/movie/popular?api_key=72b6dbc52bed1237a8eabba476078bc2
-
-        //recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), recyclerView,
-        //                    new RecyclerItemClickListener.OnItemClickListener() {
-
         return rootView;
     }
 
@@ -159,11 +144,57 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //if(favourite.isChecked())
-        //getLoaderManager().initLoader(0, null, this);
+    private void fetchMovieTask(String endpoint) {
+
+
+        //MoviesApiService service = restAdapter.create(MoviesApiService.class);
+        Call<MoviesList> movieResultCallback = null;
+        switch (endpoint) {
+            case "popular":
+                movieResultCallback = service.getPopularMovies();
+                break;
+            case "top_rated":
+                movieResultCallback = service.getTopRatedMovies();
+                break;
+
+            default:
+                Log.d("Endpoint error", "End point not accepted, data corrupted!!");
+        }
+        assert movieResultCallback != null;
+        movieResultCallback.enqueue(new Callback<MoviesList>() {
+            @Override
+            public void onResponse(Call<MoviesList> call, Response<MoviesList> response) {
+                Log.i("response code", String.valueOf(response.code()));
+                if (call.isExecuted()) {
+                    mAdapter.setMoviesList(response.body().getResults());
+                    fetchMoviesGenreList();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoviesList> call, Throwable t) {
+                Log.i("RESPONSE FAILED", t.getMessage());
+            }
+        });
+
+    }
+
+    private void fetchMoviesGenreList() {
+        Call<MoviesGenreList> moviesGenreCallback = service.getMoviesGenreList();
+        moviesGenreCallback.enqueue(new Callback<MoviesGenreList>() {
+
+            @Override
+            public void onResponse(Call<MoviesGenreList> call, Response<MoviesGenreList> response) {
+                Log.i("genre response code", String.valueOf(response.code()));
+                if (call.isExecuted())
+                    mAdapter.setGenreList(response.body().getResults());
+            }
+
+            @Override
+            public void onFailure(Call<MoviesGenreList> call, Throwable t) {
+                Log.i("GENRE RESPONSE FAILED", t.getMessage());
+            }
+        });
     }
 
     @Override
@@ -195,69 +226,16 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         }
     }
 
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    void fetchMovieTask(String endpoint) {
-
-
-        //MoviesApiService service = restAdapter.create(MoviesApiService.class);
-        Call<MoviesList> movieResultCallback = null;
-        switch (endpoint) {
-            case "popular":
-                movieResultCallback = service.getPopularMovies();
-                break;
-            case "top_rated":
-                movieResultCallback = service.getTopRatedMovies();
-                break;
-
-            default:
-                Log.d("Endpoint error", "End point not accepted, data corrupted!!");
-        }
-        movieResultCallback.enqueue(new Callback<MoviesList>() {
-            @Override
-            public void onResponse(Call<MoviesList> call, Response<MoviesList> response) {
-                int code = response.code();
-                Log.i("response code", String.valueOf(response.code()));
-                if (call.isExecuted()) {
-                    mAdapter.setMoviesList(response.body().getResults());
-                    fetchMoviesGenreList();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MoviesList> call, Throwable t) {
-                Log.i("RESPONSE FAILED", t.getMessage());
-            }
-        });
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        //getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-    }
-
-    void fetchMoviesGenreList() {
-        Call<MoviesGenreList> moviesGenreCallback = service.getMoviesGenreList();
-        moviesGenreCallback.enqueue(new Callback<MoviesGenreList>() {
-
-            @Override
-            public void onResponse(Call<MoviesGenreList> call, Response<MoviesGenreList> response) {
-                int code = response.code();
-                Log.i("genre response code", String.valueOf(response.code()));
-                if (call.isExecuted())
-                    mAdapter.setGenreList(response.body().getResults());
-            }
-
-            @Override
-            public void onFailure(Call<MoviesGenreList> call, Throwable t) {
-                Log.i("GENRE RESPONSE FAILED", t.getMessage());
-            }
-        });
     }
 
     @Override
@@ -267,9 +245,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_GENRES,
                 MoviesTable.COLUMN_VOTE_COUNT, MoviesTable.COLUMN_RATING,
                 MoviesTable.COLUMN_POPULARITY, MoviesTable.COLUMN_POSTER_PATH};
-        CursorLoader cursorLoader = new CursorLoader(getContext(),
+
+        return new CursorLoader(getContext(),
                 MoviesContentProvider.CONTENT_URI, projection, null, null, null);
-        return cursorLoader;
     }
 
     @Override

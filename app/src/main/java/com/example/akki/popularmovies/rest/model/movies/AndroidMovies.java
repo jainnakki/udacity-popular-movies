@@ -34,7 +34,7 @@ public class AndroidMovies implements Parcelable {
     public AndroidMovies() {
     }
 
-    public AndroidMovies(Parcel in) {
+    private AndroidMovies(Parcel in) {
 
         this.vote_count = in.readInt();
         this.id = in.readInt();

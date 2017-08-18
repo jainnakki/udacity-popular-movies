@@ -7,13 +7,18 @@
     <string name="string_popular">Popular</string>
     <string name="string_top_rated">Top rated</string>
     <string name="heading_original_title">Original Title</string>
-    <string name="heading_overview">Overview</string>
-    <string name="heading_movie_rating">Rating</string>
-    <string name="heading_release_date">Release Date</string>
     <string name="max_rating">/10</string>
     <string name="online_status">You are online!!!!</string>
     <string name="notOnline_status">You are not online!!!!</string>
     <string name="user_image_content_desc">default image loaded for user</string>
     <string name="string_favourite">Favourite</string>
-    <string name="favouite_button_text">Mark as Favorite</string>
+    <string name="sample_review_content_string">Very epic movie, strong storyline and also stunning graphics.. This is very recommended movie to watch with entire family.</string>
+    <string name="sample_review_author_string">HELLO</string>
+    <string name="movie_poster_content_desc">movie poster, also on clicking launches trailer of movie</string>
+    <string name="video_prev_play_content_desc">preview play placeholder image on top of image poster</string>
+    <string name="movie_popularity_icon_desc">movie popularity icon</string>
+    <string name="movie_rating_icon_desc">movie rating icon</string>
+    <string name="expand_collapse_image_button_desc">expand collapse image button</string>
+    <string name="mark_favourite_text">Mark as Favourite</string>
+    <string name="mark_unfavourite_text">Mark as Unfavourite</string>
 </resources>

@@ -18,7 +18,7 @@ public class MovieVideo implements Parcelable {
     private Integer size;
     private String type;
 
-    protected MovieVideo(Parcel in) {
+    private MovieVideo(Parcel in) {
         id = in.readString();
         iso_639_1 = in.readString();
         iso_3166_1 = in.readString();
