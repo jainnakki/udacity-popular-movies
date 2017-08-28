@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +36,7 @@ import com.example.akki.popularmovies.rest.model.review.MovieReviewList;
 import com.example.akki.popularmovies.rest.model.video.MovieVideo;
 import com.example.akki.popularmovies.rest.model.video.MovieVideoList;
 import com.example.akki.popularmovies.rest.service.MoviesApiService;
+import com.example.akki.popularmovies.ui.adapter.MovieTrailerAdapter;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 
@@ -43,6 +45,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+import me.relex.circleindicator.CircleIndicator;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,6 +90,12 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     @BindView(R.id.review_recycler_view)
     RecyclerView recyclerView;
 
+    @BindView(R.id.viewPager)
+    ViewPager viewPager;
+
+    @BindView(R.id.indicator)
+    CircleIndicator indicator;
+
     @BindView(R.id.movie_favourite_button)
     ToggleButton favouriteButton;
 
@@ -101,6 +110,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     private Bitmap tmpBitmap = null;
     private MovieReviewAdapter mrAdapter;
     private MoviesApiService service;
+    private MovieTrailerAdapter trailerAdapter;
 
     private final String LOG_TAG = MovieDetails.class.getSimpleName();
     private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
@@ -141,6 +151,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         //Log.i(LOG_TAG, "MOVIE ID : " + (parcelableMovieData != null ? parcelableMovieData.getId() : null));
         if (parcelableMovieData != null)
             updateMovieDataList(parcelableMovieData.getId());
+
 
         //Log.v(LOG_TAG, "IMAGE URL: " + parcelableMovieData.getPoster_path());
 
@@ -184,7 +195,11 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         try {
             Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(parcelableMovieData.getRelease_date());
             String formattedDate = new SimpleDateFormat("MMM dd, yyyy", Locale.US).format(date);
-            release_date.setText(formattedDate);
+            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+            Date date1 = new SimpleDateFormat("MMM dd, yyyy", Locale.US).parse(formattedDate);
+            String formattedDate1 = dateFormat.format(date1);
+            //release_date.setText(formattedDate);
+            release_date.setText(formattedDate1);
         } catch (ParseException e) {
             e.printStackTrace();
             release_date.setText(parcelableMovieData.getRelease_date());
@@ -348,30 +363,18 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                 Toast.LENGTH_SHORT).show();
     }
 
-    @OnClick({R.id.movie_poster, R.id.video_preview_play_image})
-    public void playVideo() {
-        if (videoKeys != null)
-            watchYoutubeVideo(videoKeys[0]);
-    }
-
-
-    private void watchYoutubeVideo(String id) {
-        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
-        Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://www.youtube.com/watch?v=" + id));
-        try {
-            startActivity(appIntent);
-        } catch (ActivityNotFoundException ex) {
-            startActivity(webIntent);
-        }
-    }
-
     private void setVideoKeys(List<MovieVideo> VideoList) {
         videoKeys = new String[VideoList.size()];
         MovieVideo video;
         for (int i = 0; i < videoKeys.length; i++) {
             video = VideoList.get(i);
             videoKeys[i] = video.getKey();
+        }
+
+        if(videoKeys != null) {
+            trailerAdapter = new MovieTrailerAdapter(MovieDetails.this,videoKeys);
+            viewPager.setAdapter(trailerAdapter);
+            indicator.setViewPager(viewPager);
         }
     }
 

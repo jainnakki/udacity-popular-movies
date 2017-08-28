@@ -135,7 +135,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 Log.d("genreIds no error", "it is not null!!!");
                 int finalGenreIdSize = genreIds.size() > 3 ? 3 : genreIds.size();
                 for (int i = 0; i < finalGenreIdSize; i++)
-                    genre_names += genreDictionary.get(genreIds.get(i)) + (i != finalGenreIdSize - 1 ? "," : "");
+                    genre_names += genreDictionary.get(genreIds.get(i)) + (i != finalGenreIdSize - 1 ? " | " : "");
             } else {
                 Log.e("genreIds error", "it is null!!!");
             }

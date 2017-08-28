@@ -13,7 +13,7 @@ public class MoviesTable {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_ORIGINAL_TITLE = "title";
     public static final String COLUMN_OVERVIEW = "overview";
-    public static final String COLUMN_RELEASE_DATE = "releaseDate";
+    public static final String COLUMN_RELEASE_DATE = "release_date";
     public static final String COLUMN_GENRES = "genres";
     public static final String COLUMN_VOTE_COUNT = "voteCount";
     public static final String COLUMN_RATING = "rating";
