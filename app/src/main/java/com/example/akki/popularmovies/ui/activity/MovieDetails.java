@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017.  Akshay Jain
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.akki.popularmovies.ui.activity;
 
 import android.Manifest;
@@ -5,26 +21,37 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.bumptech.glide.Glide;
 import com.example.akki.popularmovies.rest.AppStatus;
 import com.example.akki.popularmovies.ui.adapter.MovieReviewAdapter;
 import com.example.akki.popularmovies.R;
@@ -37,6 +64,7 @@ import com.example.akki.popularmovies.rest.model.video.MovieVideo;
 import com.example.akki.popularmovies.rest.model.video.MovieVideoList;
 import com.example.akki.popularmovies.rest.service.MoviesApiService;
 import com.example.akki.popularmovies.ui.adapter.MovieTrailerAdapter;
+import com.example.akki.popularmovies.ui.adapter.MovieTrailerAdapter1;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 
@@ -68,8 +96,13 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
     private final String TAG = MovieDetails.class.getSimpleName();
 
+    @BindView(R.id.movie_details_coordinatorLayout)
+    CoordinatorLayout movie_details_coordinatorLayout;
+
     @BindView(R.id.movie_poster)
     ImageView movie_poster;
+    @BindView(R.id.headerPoster)
+    ImageView header_poster;
 
     @BindView(R.id.expand_text_view)
     ExpandableTextView overviewExpTv;
@@ -90,14 +123,21 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     @BindView(R.id.review_recycler_view)
     RecyclerView recyclerView;
 
-    @BindView(R.id.viewPager)
-    ViewPager viewPager;
+    //@BindView(R.id.viewPager)
+    //ViewPager viewPager;
+    @BindView(R.id.trailer_recycler_view)
+    RecyclerView trailerRecyclerView;
 
-    @BindView(R.id.indicator)
-    CircleIndicator indicator;
+    @BindView(R.id.appbar)
+    AppBarLayout appBar;
+
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @BindView(R.id.movie_favourite_button)
     ToggleButton favouriteButton;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
 
     @BindString(R.string.max_rating)
     String maxRating;
@@ -105,21 +145,26 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     String onlineMessage;
     @BindString(R.string.notOnline_status)
     String notOnlineMessage;
+    @BindString(R.string.movieFavourite_status)
+    String movieFavouriteMessage;
+    @BindString(R.string.movieNotFavourite_status)
+    String movieNotFavouriteMessage;
 
     private File tmpMyDir = null;
     private Bitmap tmpBitmap = null;
     private MovieReviewAdapter mrAdapter;
     private MoviesApiService service;
-    private MovieTrailerAdapter trailerAdapter;
+    private MovieTrailerAdapter1 trailerAdapter;
 
     private final String LOG_TAG = MovieDetails.class.getSimpleName();
     private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
     private String[] videoKeys = null;
+    private static int flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_details);
+        setContentView(R.layout.fragment_movie_details);
         ButterKnife.bind(this);
 
         mrAdapter = new MovieReviewAdapter(this);
@@ -127,6 +172,12 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
 
+        trailerAdapter = new MovieTrailerAdapter1(this);
+        trailerRecyclerView.setAdapter(trailerAdapter);
+        trailerRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager
+                .HORIZONTAL, false));
+
+        setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         assert ab != null;
         ab.setDisplayHomeAsUpEnabled(true);
@@ -148,22 +199,38 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
         service = restAdapter.create(MoviesApiService.class);
 
-        //Log.i(LOG_TAG, "MOVIE ID : " + (parcelableMovieData != null ? parcelableMovieData.getId() : null));
+        //Log.i(LOG_TAG, "MOVIE ID : " + (parcelableMovieData != null ? parcelableMovieData.getId
+        // () : null));
         if (parcelableMovieData != null)
             updateMovieDataList(parcelableMovieData.getId());
 
 
         //Log.v(LOG_TAG, "IMAGE URL: " + parcelableMovieData.getPoster_path());
 
-        String posterLoadingPath;
+        String posterLoadingPath, headerPosterLoadingPath;
         if (parcelableMovieData.getFavourite() == 0) {
-            posterLoadingPath = "http://image.tmdb.org/t/p/w185" + parcelableMovieData.getPoster_path();
-            Log.v(LOG_TAG, "IMAGE URL NOT FAV: " + parcelableMovieData.getPoster_path());
+            posterLoadingPath = "http://image.tmdb.org/t/p/w185" + parcelableMovieData
+                    .getPoster_path();
+            Log.v(LOG_TAG, "POSTER URL NOT FAV: " + parcelableMovieData.getPoster_path());
             Picasso.with(this)
                     .load(posterLoadingPath)
                     .fit()
                     .error(R.drawable.error)
                     .into(movie_poster);
+//            Glide.with(this)
+//                    .load(posterLoadingPath)
+//                    .asBitmap()
+//                    .into(movie_poster);
+
+            headerPosterLoadingPath = "http://image.tmdb.org/t/p/w342" + parcelableMovieData
+                    .getBackdrop_path();
+            Log.v(LOG_TAG, "BACKDROP URL NOT FAV: " + parcelableMovieData.getBackdrop_path());
+            Picasso.with(this)
+                    .load(headerPosterLoadingPath)
+                    .fit()
+                    .placeholder(R.drawable.poster_placeholder_image)
+                    .into(header_poster);
+
         } else {
             posterLoadingPath = parcelableMovieData.getPoster_path();
             Log.v(LOG_TAG, "IMAGE URL FAV: " + parcelableMovieData.getPoster_path());
@@ -193,7 +260,8 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         rating.setText(ratingString);
 
         try {
-            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(parcelableMovieData.getRelease_date());
+            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(parcelableMovieData
+                    .getRelease_date());
             String formattedDate = new SimpleDateFormat("MMM dd, yyyy", Locale.US).format(date);
             DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
             Date date1 = new SimpleDateFormat("MMM dd, yyyy", Locale.US).parse(formattedDate);
@@ -208,10 +276,12 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         movie_genre.setText(parcelableMovieData.getGenre_names());
         Log.i(LOG_TAG, "MOVIE GENRES: " + parcelableMovieData.getGenre_names());
 
-        if (parcelableMovieData.getFavourite() == 0)
+        if (parcelableMovieData.getFavourite() == 0) {
             favouriteButton.setChecked(false);
-        else
+        }
+        else {
             favouriteButton.setChecked(true);
+        }
 
         favouriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -221,6 +291,22 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
                 if (!isChecked && parcelableMovieData.getFavourite() == 1)
                     removeMovieDetailsFromDatabase(parcelableMovieData);
+            }
+        });
+
+        flag = 0;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flag++;
+                if(flag%2 == 1) {
+                    fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R
+                            .drawable.favourite));
+                }
+                if(flag%2 == 0) {
+                    fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R
+                            .drawable.favourite_border));
+                }
             }
         });
 
@@ -254,7 +340,9 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             values.put(MoviesTable.COLUMN_POSTER_PATH, imagePathOnStorage);
 
             getContentResolver().insert(MoviesContentProvider.CONTENT_URI, values);
-            makeToast("Details Saved!");
+            //makeToast("Details Saved!");
+            Snackbar snackbar = Snackbar.make(movie_details_coordinatorLayout, movieFavouriteMessage, Snackbar.LENGTH_SHORT);
+            snackbar.show();
         }
     }
 
@@ -262,6 +350,8 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         Uri uri = Uri.parse(MoviesContentProvider.CONTENT_URI + "/"
                 + MoviesData.getId());
         getContentResolver().delete(uri, null, null);
+        Snackbar snackbar = Snackbar.make(movie_details_coordinatorLayout, movieNotFavouriteMessage, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
     private String saveImageOffline(String ImageUrl, final int imageId) throws IOException {
@@ -314,7 +404,8 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             } else {
 
                 Log.v(TAG, "Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
+                        .WRITE_EXTERNAL_STORAGE}, 2);
                 return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
@@ -337,7 +428,8 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         switch (requestCode) {
@@ -371,10 +463,10 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             videoKeys[i] = video.getKey();
         }
 
-        if(videoKeys != null) {
-            trailerAdapter = new MovieTrailerAdapter(MovieDetails.this,videoKeys);
-            viewPager.setAdapter(trailerAdapter);
-            indicator.setViewPager(viewPager);
+        if (videoKeys != null) {
+            //trailerAdapter = new MovieTrailerAdapter(MovieDetails.this,videoKeys);
+            //viewPager.setAdapter(trailerAdapter);
+            trailerAdapter.setVideoKeys(videoKeys);
         }
     }
 
@@ -400,7 +492,8 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             videoResultCallback = service.getMovieVideoList(movieId);
             videoResultCallback.enqueue(new Callback<MovieVideoList>() {
                 @Override
-                public void onResponse(Call<MovieVideoList> call, Response<MovieVideoList> response) {
+                public void onResponse(Call<MovieVideoList> call, Response<MovieVideoList>
+                        response) {
                     Log.i("video response code", String.valueOf(response.code()));
                     if (call.isExecuted()) {
                         setVideoKeys(response.body().getResults());

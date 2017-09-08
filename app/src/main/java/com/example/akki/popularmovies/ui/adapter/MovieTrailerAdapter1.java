@@ -20,58 +20,70 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.view.PagerAdapter;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-
 import com.example.akki.popularmovies.R;
 import com.squareup.picasso.Picasso;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 /**
- * Created by Akshay on 22-08-2017.
+ * Created by Akshay on 20-07-2017.
  */
 
-public class MovieTrailerAdapter extends PagerAdapter {
-    Context context;
+public class MovieTrailerAdapter1 extends RecyclerView.Adapter<MovieTrailerAdapter1.ViewHolder> {
+
+    private final Context context;
+
     String videoKeys[];
-    LayoutInflater layoutInflater;
 
-    public MovieTrailerAdapter(Context context, String videoKeys[]) {
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.trailer_thumbnail_view)
+        public ImageView trailerImageView;
+
+        public ViewHolder(View v) {
+            super(v);
+            ButterKnife.bind(this, v);
+        }
+
+    }
+
+    public MovieTrailerAdapter1(Context context) {
+        super();
         this.context = context;
+    }
+
+
+    public void setVideoKeys(String videoKeys[]) {
         this.videoKeys = videoKeys;
-        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        notifyDataSetChanged();
     }
 
     @Override
-    public int getCount() {
-        return videoKeys.length;
+    public MovieTrailerAdapter1.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        //LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.movie_trailer, parent, false);
+        return new ViewHolder(v);
     }
 
     @Override
-    public boolean isViewFromObject(View view, Object object) {
-        return view == ((LinearLayout) object);
-    }
-
-    @Override
-    public Object instantiateItem(ViewGroup container, final int position) {
-        View itemView = layoutInflater.inflate(R.layout.movie_trailer, container, false);
-
-        ImageView trailerImageView = (ImageView)itemView.findViewById(R.id.trailer_thumbnail_view);
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         String trailerThumbnailImage = "https://img.youtube.com/vi/" + videoKeys[position] + "/0.jpg";
         Picasso.with(context)
                 .load(trailerThumbnailImage)
                 .fit()
                 .error(R.drawable.trailer_error)
-                .into(trailerImageView);
-
-        container.addView(itemView);
+                .into(holder.trailerImageView);
 
         //listening to image click
-        trailerImageView.setOnClickListener(new View.OnClickListener() {
+        holder.trailerImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoKeys[position]));
@@ -84,12 +96,12 @@ public class MovieTrailerAdapter extends PagerAdapter {
                 }
             }
         });
-
-        return itemView;
     }
+
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView((LinearLayout) object);
+    public int getItemCount() {
+        return (videoKeys == null) ? 0 : videoKeys.length;
     }
+
 }

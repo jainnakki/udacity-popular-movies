@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017.  Akshay Jain
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.akki.popularmovies.ui.adapter;
 
 import android.content.Context;
@@ -135,7 +151,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 Log.d("genreIds no error", "it is not null!!!");
                 int finalGenreIdSize = genreIds.size() > 3 ? 3 : genreIds.size();
                 for (int i = 0; i < finalGenreIdSize; i++)
-                    genre_names += genreDictionary.get(genreIds.get(i)) + (i != finalGenreIdSize - 1 ? " | " : "");
+                    genre_names += genreDictionary.get(genreIds.get(i)) + (i != finalGenreIdSize
+                            - 1 ? " | " : "");
             } else {
                 Log.e("genreIds error", "it is null!!!");
             }
@@ -211,6 +228,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 movie.setOriginal_title(movies.getOriginal_title());
                 movie.setGenre_ids(movies.getGenre_ids());
                 movie.setGenre_names(finalGenre_names);
+                movie.setBackdrop_path(movies.getBackdrop_path());
                 movie.setOverview(movies.getOverview());
                 movie.setRelease_date(movies.getRelease_date());
                 movie.setFavourite(movies.getFavourite());

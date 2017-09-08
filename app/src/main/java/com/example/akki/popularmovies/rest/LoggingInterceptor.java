@@ -1,6 +1,25 @@
+/*
+ * Copyright 2017.  Akshay Jain
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.akki.popularmovies.rest;
 
 import android.util.Log;
+
+import com.example.akki.popularmovies.BuildConfig;
+import com.example.akki.popularmovies.R;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -21,7 +40,7 @@ public class LoggingInterceptor implements Interceptor {
 
         HttpUrl url = chain.request().url()
                 .newBuilder()
-                .addQueryParameter("api_key", "72b6dbc52bed1237a8eabba476078bc2")
+                .addQueryParameter("api_key", BuildConfig.THE_MOVIE_DB_API_TOKEN)
                 .build();
 
         Request request = chain.request().newBuilder().url(url).build();

@@ -1,10 +1,29 @@
+/*
+ * Copyright 2017.  Akshay Jain
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.akki.popularmovies.ui.fragment;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -19,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.akki.popularmovies.rest.AppStatus;
@@ -54,6 +74,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
+
     @BindView(R.id.my_recycler_view)
     RecyclerView recyclerView;
 
@@ -68,6 +91,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     String onlineMessage;
     @BindString(R.string.notOnline_status)
     String notOnlineMessage;
+    @BindString(R.string.noInternet_status)
+    String noInternetMessage;
 
     private Unbinder unbinder;
     private MovieAdapter mAdapter;
@@ -116,14 +141,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         recyclerView.setAdapter(mAdapter);
 
         //RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
-        RecyclerView.LayoutManager mLayoutManager = new StaggeredGridLayoutManager(3,1);
+        RecyclerView.LayoutManager mLayoutManager = new StaggeredGridLayoutManager(3, 1);
         recyclerView.setLayoutManager(mLayoutManager);
 
         mBundleRecyclerViewState = savedInstanceState;
-        if(mBundleRecyclerViewState != null) {
+        if (mBundleRecyclerViewState != null) {
             Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            if(listState!=null)
-            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+            if (listState != null)
+                recyclerView.getLayoutManager().onRestoreInstanceState(listState);
 
             popular.setChecked(mBundleRecyclerViewState.getBoolean(SAVED_SORT_BY_POPULAR));
             top_rated.setChecked(mBundleRecyclerViewState.getBoolean(SAVED_SORT_BY_TOP_RATED));
@@ -165,7 +190,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         return rootView;
     }
 
-    private void updateMoviesList(String endpoint) {
+    private void updateMoviesList(final String endpoint) {
 
         //if(mBundleRecyclerViewState != null) {
 //            mMoviesData = mBundleRecyclerViewState.getParcelableArrayList(SAVED_MOVIES_DATA);
@@ -173,30 +198,52 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 //
 //            mAdapter.setMoviesList(mMoviesData);
 //            mAdapter.setGenreList(mMoviesGenreData);
-       // }
-       // else {
+        // }
+        // else {
 
-            if (!endpoint.equals("favourite")) {
-                if (AppStatus.getInstance(getActivity()).isOnline()) {
+        if (!endpoint.equals("favourite")) {
+            if (AppStatus.getInstance(getActivity()).isOnline()) {
 
-                    Toast t = Toast.makeText(getContext(), onlineMessage, Toast.LENGTH_SHORT);
-                    t.show();
-                    fetchMovieTask(endpoint);
-                } else {
+                //Toast t = Toast.makeText(getContext(), onlineMessage, Toast.LENGTH_SHORT);
+                //t.show();
+                Snackbar snackbar = Snackbar.make(coordinatorLayout, onlineMessage, Snackbar.LENGTH_SHORT);
+                View sbView = snackbar.getView();
+                TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+                textView.setTextColor(Color.GREEN);
+                snackbar.show();
 
-                    Toast t = Toast.makeText(getContext(), notOnlineMessage, Toast.LENGTH_SHORT);
-                    t.show();
-                }
+                fetchMovieTask(endpoint);
             } else {
 
-                Log.i(MOVIE_FRAGMENT_TAG,"Loading from Database!");
+                //Toast t = Toast.makeText(getContext(), notOnlineMessage, Toast.LENGTH_SHORT);
+                //t.show();
+                Snackbar snackbar = Snackbar
+                        .make(coordinatorLayout, noInternetMessage, Snackbar.LENGTH_INDEFINITE)
+                        .setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                updateMoviesList(endpoint);
+                            }
+                        });
 
-                if (databaseMoviesList != null) {
-                    mAdapter.setMoviesList(databaseMoviesList);
-                    mMoviesData = databaseMoviesList;
-                }
+                snackbar.setActionTextColor(Color.RED);
+
+                View sbView = snackbar.getView();
+                TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+                textView.setTextColor(Color.YELLOW);
+                snackbar.show();
+
             }
-       // }
+        } else {
+
+            Log.i(MOVIE_FRAGMENT_TAG, "Loading from Database!");
+
+            if (databaseMoviesList != null) {
+                mAdapter.setMoviesList(databaseMoviesList);
+                mMoviesData = databaseMoviesList;
+            }
+        }
+        // }
 
     }
 
@@ -246,7 +293,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 Log.i("genre response code", String.valueOf(response.code()));
                 if (call.isExecuted())
                     mAdapter.setGenreList(response.body().getResults());
-                    mMoviesGenreData = response.body().getResults();
+                mMoviesGenreData = response.body().getResults();
             }
 
             @Override
@@ -285,7 +332,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void saveState() {
         ContentValues[] valuesList = new ContentValues[databaseMoviesList.size()];
-        for(int i=0;i<databaseMoviesList.size();i++){
+        for (int i = 0; i < databaseMoviesList.size(); i++) {
             ContentValues values = new ContentValues();
             AndroidMovies MoviesData = databaseMoviesList.get(i);
             values.put(MoviesTable.COLUMN_ID, MoviesData.getId());
@@ -326,11 +373,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if(mMoviesData != null)
-        outState.putParcelableArrayList(SAVED_MOVIES_DATA, (ArrayList<? extends Parcelable>) mMoviesData);
+        if (mMoviesData != null)
+            outState.putParcelableArrayList(SAVED_MOVIES_DATA, (ArrayList<? extends Parcelable>) mMoviesData);
 
-        if(mMoviesGenreData != null)
-        outState.putParcelableArrayList(SAVED_MOVIES_GENRE_DATA, (ArrayList<? extends Parcelable>) mMoviesGenreData);
+        if (mMoviesGenreData != null)
+            outState.putParcelableArrayList(SAVED_MOVIES_GENRE_DATA, (ArrayList<? extends Parcelable>) mMoviesGenreData);
 
         outState.putBoolean(SAVED_SORT_BY_POPULAR, popular.isChecked());
         outState.putBoolean(SAVED_SORT_BY_TOP_RATED, top_rated.isChecked());
@@ -349,9 +396,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 //
 //        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
 //        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
-      }
+    }
 
-   @Override
+    @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 

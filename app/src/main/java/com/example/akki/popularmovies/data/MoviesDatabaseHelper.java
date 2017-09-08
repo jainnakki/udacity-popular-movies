@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017.  Akshay Jain
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.akki.popularmovies.data;
 
 import android.content.Context;
@@ -19,13 +35,13 @@ public class MoviesDatabaseHelper extends SQLiteOpenHelper {
             MoviesTable.COLUMN_ORIGINAL_TITLE, MoviesTable.COLUMN_OVERVIEW,
             MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_POSTER_PATH};
 
-    private static MoviesDatabaseHelper instance;
+    private static MoviesDatabaseHelper sInstance;
 
     public static MoviesDatabaseHelper getInstance(Context context) {
-        if (instance == null) {
-            instance = new MoviesDatabaseHelper(context.getApplicationContext());
+        if (sInstance == null) {
+            sInstance = new MoviesDatabaseHelper(context.getApplicationContext());
         }
-        return instance;
+        return sInstance;
     }
 
     private MoviesDatabaseHelper(Context context) {

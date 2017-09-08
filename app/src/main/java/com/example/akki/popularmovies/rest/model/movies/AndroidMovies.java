@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017.  Akshay Jain
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.akki.popularmovies.rest.model.movies;
 
 import android.os.Parcel;
@@ -8,12 +24,13 @@ import java.util.List;
 
 /**
  * Created by Akki on 05-09-2016.
+ * Model class for details of the movie
  */
 public class AndroidMovies implements Parcelable {
 
-    private List<Integer> genre_ids = new ArrayList<>();
+    private List<Integer> mGenre_ids = new ArrayList<>();
 
-    private String original_title, poster_path, overview, release_date, genre_names;
+    private String original_title, poster_path, backdrop_path, overview, release_date, genre_names;
 
     private Integer id, vote_count, favourite = 0;
 
@@ -44,8 +61,9 @@ public class AndroidMovies implements Parcelable {
 
         this.poster_path = in.readString();
         this.original_title = in.readString();
-        this.genre_ids = in.readArrayList(Integer.class.getClassLoader());
+        this.mGenre_ids = in.readArrayList(Integer.class.getClassLoader());
         this.genre_names = in.readString();
+        this.backdrop_path = in.readString();
         this.overview = in.readString();
         this.release_date = in.readString();
         this.favourite = in.readInt();
@@ -67,8 +85,9 @@ public class AndroidMovies implements Parcelable {
 
         dest.writeString(this.poster_path);
         dest.writeString(this.original_title);
-        dest.writeList(this.genre_ids);
+        dest.writeList(this.mGenre_ids);
         dest.writeString(this.genre_names);
+        dest.writeString(this.backdrop_path);
         dest.writeString(this.overview);
         dest.writeString(this.release_date);
         dest.writeInt(this.favourite);
@@ -93,11 +112,15 @@ public class AndroidMovies implements Parcelable {
     }
 
     public List<Integer> getGenre_ids() {
-        return genre_ids;
+        return mGenre_ids;
     }
 
     public String getGenre_names() {
         return genre_names;
+    }
+
+    public String getBackdrop_path() {
+        return backdrop_path;
     }
 
     public Integer getId() {
@@ -139,11 +162,15 @@ public class AndroidMovies implements Parcelable {
     }
 
     public void setGenre_ids(List<Integer> Genre_ids) {
-        this.genre_ids = Genre_ids;
+        this.mGenre_ids = Genre_ids;
     }
 
     public void setGenre_names(String Genre_names) {
         this.genre_names = Genre_names;
+    }
+
+    public void setBackdrop_path(String Backdrop_path) {
+        this.backdrop_path = Backdrop_path;
     }
 
     public void setId(Integer Id) {
