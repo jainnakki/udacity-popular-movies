@@ -84,7 +84,7 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
             android:textColor="#666666"
             android:textSize="12sp"
-            app:layout_constraintHorizontal_bias="0.509"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintLeft_toLeftOf="@+id/movie_title"
             app:layout_constraintRight_toRightOf="@+id/movie_title"
             app:layout_constraintTop_toBottomOf="@+id/movie_title"/>

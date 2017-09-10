@@ -35,6 +35,7 @@ public class MoviesTable {
     public static final String COLUMN_RATING = "rating";
     public static final String COLUMN_POPULARITY = "popularity";
     public static final String COLUMN_POSTER_PATH = "posterPath";
+    public static final String COLUMN_BACKDROP_PATH = "backdropPath";
 
     private static final String DATABASE_CREATE = "create table "
             + TABLE_MOVIES
@@ -47,7 +48,8 @@ public class MoviesTable {
             + COLUMN_VOTE_COUNT + " integer not null,"
             + COLUMN_RATING + " real not null,"
             + COLUMN_POPULARITY + " integer not null,"
-            + COLUMN_POSTER_PATH + " text not null"
+            + COLUMN_POSTER_PATH + " text not null,"
+            + COLUMN_BACKDROP_PATH + " text not null"
             + ");";
 
     public static void onCreate(SQLiteDatabase database) {

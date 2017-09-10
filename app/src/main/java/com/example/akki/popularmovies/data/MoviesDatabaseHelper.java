@@ -33,7 +33,7 @@ public class MoviesDatabaseHelper extends SQLiteOpenHelper {
             MoviesTable.COLUMN_RATING, MoviesTable.COLUMN_VOTE_COUNT,
             MoviesTable.COLUMN_GENRES, MoviesTable.COLUMN_ID,
             MoviesTable.COLUMN_ORIGINAL_TITLE, MoviesTable.COLUMN_OVERVIEW,
-            MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_POSTER_PATH};
+            MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_POSTER_PATH, MoviesTable.COLUMN_BACKDROP_PATH};
 
     private static MoviesDatabaseHelper sInstance;
 

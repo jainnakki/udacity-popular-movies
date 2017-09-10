@@ -17,15 +17,11 @@
 package com.example.akki.popularmovies.ui.activity;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,7 +33,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -64,9 +59,7 @@ import com.example.akki.popularmovies.rest.model.video.MovieVideo;
 import com.example.akki.popularmovies.rest.model.video.MovieVideoList;
 import com.example.akki.popularmovies.rest.service.MoviesApiService;
 import com.example.akki.popularmovies.ui.adapter.MovieTrailerAdapter;
-import com.example.akki.popularmovies.ui.adapter.MovieTrailerAdapter1;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -84,7 +77,6 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import me.relex.circleindicator.CircleIndicator;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -150,11 +142,15 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     @BindString(R.string.movieNotFavourite_status)
     String movieNotFavouriteMessage;
 
-    private File tmpMyDir = null;
-    private Bitmap tmpBitmap = null;
+    private File tmpPosterMyDir = null;
+    private Bitmap tmpPosterBitmap = null;
+    private String IMAGE_TAG = null;
+    private File tmpHeaderPosterMyDir = null;
+    private Bitmap tmpHeaderPosterBitmap = null;
+
     private MovieReviewAdapter mrAdapter;
     private MoviesApiService service;
-    private MovieTrailerAdapter1 trailerAdapter;
+    private MovieTrailerAdapter trailerAdapter;
 
     private final String LOG_TAG = MovieDetails.class.getSimpleName();
     private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
@@ -172,7 +168,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        trailerAdapter = new MovieTrailerAdapter1(this);
+        trailerAdapter = new MovieTrailerAdapter(this);
         trailerRecyclerView.setAdapter(trailerAdapter);
         trailerRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager
                 .HORIZONTAL, false));
@@ -212,34 +208,57 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             posterLoadingPath = "http://image.tmdb.org/t/p/w185" + parcelableMovieData
                     .getPoster_path();
             Log.v(LOG_TAG, "POSTER URL NOT FAV: " + parcelableMovieData.getPoster_path());
-            Picasso.with(this)
-                    .load(posterLoadingPath)
-                    .fit()
-                    .error(R.drawable.error)
-                    .into(movie_poster);
-//            Glide.with(this)
+//            Picasso.with(this)
 //                    .load(posterLoadingPath)
-//                    .asBitmap()
+//                    .fit()
+//                    .error(R.drawable.error)
 //                    .into(movie_poster);
+            Glide.with(this)
+                    .load(posterLoadingPath)
+                    .asBitmap()
+                    .into(movie_poster);
 
             headerPosterLoadingPath = "http://image.tmdb.org/t/p/w342" + parcelableMovieData
                     .getBackdrop_path();
             Log.v(LOG_TAG, "BACKDROP URL NOT FAV: " + parcelableMovieData.getBackdrop_path());
-            Picasso.with(this)
+//            Picasso.with(this)
+//                    .load(headerPosterLoadingPath)
+//                    .fit()
+//                    .placeholder(R.drawable.poster_placeholder_image)
+//                    .into(header_poster);
+
+            Glide.with(this)
                     .load(headerPosterLoadingPath)
-                    .fit()
+                    .asBitmap()
                     .placeholder(R.drawable.poster_placeholder_image)
                     .into(header_poster);
 
         } else {
             posterLoadingPath = parcelableMovieData.getPoster_path();
             Log.v(LOG_TAG, "IMAGE URL FAV: " + parcelableMovieData.getPoster_path());
-            Uri imageUri = Uri.fromFile(new File(posterLoadingPath));
-            Picasso.with(this)
-                    .load(imageUri)
-                    .fit()
+            Uri posterImageUri = Uri.fromFile(new File(posterLoadingPath));
+//            Picasso.with(this)
+//                    .load(imageUri)
+//                    .fit()
+//                    .error(R.drawable.error)
+//                    .into(movie_poster);
+
+            Glide.with(this)
+                    .load(posterImageUri)
+                    .asBitmap()
                     .error(R.drawable.error)
                     .into(movie_poster);
+
+
+            headerPosterLoadingPath = parcelableMovieData.getBackdrop_path();
+            Log.v(LOG_TAG, "BACKDROP URL FAV: " + parcelableMovieData.getBackdrop_path());
+            Uri headerPosterImageUri = Uri.fromFile(new File(headerPosterLoadingPath));
+
+            Glide.with(this)
+                    .load(headerPosterImageUri)
+                    .asBitmap()
+                    .placeholder(R.drawable.poster_placeholder_image)
+                    .into(header_poster);
         }
 
         title.setText(parcelableMovieData.getOriginal_title());
@@ -313,19 +332,27 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     }
 
     private void saveMovieDetailsInDatabase(AndroidMovies MoviesData) {
-        String imageURL = "http://image.tmdb.org/t/p/w185" + MoviesData.getPoster_path();
-        String imagePathOnStorage = null;
+        String posterImageURL = "http://image.tmdb.org/t/p/w185" + MoviesData.getPoster_path();
+        String headerPosterImageURL = "http://image.tmdb.org/t/p/w342" + MoviesData.getBackdrop_path();
+        String poster_TAG = "poster";
+        String headerPoster_TAG = "headerPoster";
+        String posterImagePathOnStorage = null;
+        String headerPosterImagePathOnStorage = null;
 
         try {
-            imagePathOnStorage = saveImageOffline(imageURL, MoviesData.getId());
+            posterImagePathOnStorage = saveImageOffline(posterImageURL, MoviesData.getId(), poster_TAG);
+            headerPosterImagePathOnStorage = saveImageOffline(headerPosterImageURL, MoviesData.getId(), headerPoster_TAG);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (imagePathOnStorage != null) {
-            Log.i("Offline Path Saved: ", imagePathOnStorage);
-            Bitmap bmap = BitmapFactory.decodeFile(imagePathOnStorage);
-            movie_poster.setImageBitmap(bmap);
+        if (posterImagePathOnStorage != null && headerPosterImagePathOnStorage != null) {
+            Log.i("Offline Path Saved 1: ", posterImagePathOnStorage);
+            Log.i("Offline Path Saved 2: ", headerPosterImagePathOnStorage);
+            Bitmap bmap1 = BitmapFactory.decodeFile(posterImagePathOnStorage);
+            Bitmap bmap2 = BitmapFactory.decodeFile(headerPosterImagePathOnStorage);
+            movie_poster.setImageBitmap(bmap1);
+            header_poster.setImageBitmap(bmap2);
             Log.i("Image Set", "Success");
 
             ContentValues values = new ContentValues();
@@ -337,10 +364,11 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             values.put(MoviesTable.COLUMN_VOTE_COUNT, MoviesData.getVote_count());
             values.put(MoviesTable.COLUMN_RATING, MoviesData.getUser_rating());
             values.put(MoviesTable.COLUMN_POPULARITY, MoviesData.getPopularity());
-            values.put(MoviesTable.COLUMN_POSTER_PATH, imagePathOnStorage);
+            values.put(MoviesTable.COLUMN_POSTER_PATH, posterImagePathOnStorage);
+            values.put(MoviesTable.COLUMN_BACKDROP_PATH, headerPosterImagePathOnStorage);
 
             getContentResolver().insert(MoviesContentProvider.CONTENT_URI, values);
-            //makeToast("Details Saved!");
+
             Snackbar snackbar = Snackbar.make(movie_details_coordinatorLayout, movieFavouriteMessage, Snackbar.LENGTH_SHORT);
             snackbar.show();
         }
@@ -350,11 +378,12 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         Uri uri = Uri.parse(MoviesContentProvider.CONTENT_URI + "/"
                 + MoviesData.getId());
         getContentResolver().delete(uri, null, null);
+
         Snackbar snackbar = Snackbar.make(movie_details_coordinatorLayout, movieNotFavouriteMessage, Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 
-    private String saveImageOffline(String ImageUrl, final int imageId) throws IOException {
+    private String saveImageOffline(String ImageUrl, final int imageId, String TAG) throws IOException {
 
 
         InputStream input = null;
@@ -369,8 +398,16 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             if (!myDir.exists())
                 myDir.mkdirs();
 
+            String outputName = null;
+            if(TAG.equals("poster")) {
+                outputName = imageId + "-thumbnail.jpg";
+            }
+            if(TAG.equals("headerPoster")) {
+                outputName = imageId + "-header-thumbnail.jpg";
+            }
 
-            String outputName = imageId + "-thumbnail.jpg";
+            assert outputName != null;
+
             myDir = new File(myDir, outputName);
 
             input = url.openConnection().getInputStream();
@@ -380,8 +417,17 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             if (isStoragePermissionGranted()) {
                 SaveImage(bitmap, myDir);
             } else {
-                tmpBitmap = bitmap;
-                tmpMyDir = myDir;
+                IMAGE_TAG  = TAG;
+
+                if(IMAGE_TAG.equals("poster")) {
+                    tmpPosterBitmap = bitmap;
+                    tmpPosterMyDir = myDir;
+                }
+
+                if(IMAGE_TAG.equals("headerPoster")) {
+                    tmpHeaderPosterBitmap = bitmap;
+                    tmpHeaderPosterMyDir = myDir;
+                }
             }
 
 
@@ -417,12 +463,14 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
     private void SaveImage(Bitmap finalBitmap, File myDir) {
 
         try {
+            Log.i("myDir",myDir.getPath());
             FileOutputStream out = new FileOutputStream(myDir);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
             out.flush();
             out.close();
 
         } catch (Exception e) {
+            Log.e("IMAGE SAVING ERROR",e.getMessage());
             e.printStackTrace();
         }
     }
@@ -439,8 +487,11 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
 
-                    if (tmpBitmap != null && tmpMyDir != null)
-                        SaveImage(tmpBitmap, tmpMyDir);
+                    if(IMAGE_TAG.equals("poster") && tmpPosterBitmap != null && tmpPosterMyDir != null)
+                        SaveImage(tmpPosterBitmap, tmpPosterMyDir);
+
+                    if(IMAGE_TAG.equals("headerPoster") && tmpHeaderPosterBitmap != null && tmpHeaderPosterMyDir != null)
+                        SaveImage(tmpHeaderPosterBitmap, tmpHeaderPosterMyDir);
 
                 } else {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
@@ -464,8 +515,6 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         }
 
         if (videoKeys != null) {
-            //trailerAdapter = new MovieTrailerAdapter(MovieDetails.this,videoKeys);
-            //viewPager.setAdapter(trailerAdapter);
             trailerAdapter.setVideoKeys(videoKeys);
         }
     }

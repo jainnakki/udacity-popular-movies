@@ -193,7 +193,7 @@ public class MoviesContentProvider extends ContentProvider {
                 MoviesTable.COLUMN_RATING, MoviesTable.COLUMN_VOTE_COUNT,
                 MoviesTable.COLUMN_GENRES, MoviesTable.COLUMN_ID,
                 MoviesTable.COLUMN_ORIGINAL_TITLE, MoviesTable.COLUMN_OVERVIEW,
-                MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_POSTER_PATH};
+                MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_POSTER_PATH, MoviesTable.COLUMN_BACKDROP_PATH};
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<>(
                     Arrays.asList(projection));

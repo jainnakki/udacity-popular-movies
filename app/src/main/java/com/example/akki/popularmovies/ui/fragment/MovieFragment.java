@@ -16,12 +16,9 @@
 
 package com.example.akki.popularmovies.ui.fragment;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -29,17 +26,14 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.akki.popularmovies.rest.AppStatus;
 import com.example.akki.popularmovies.ui.adapter.GridSpacingItemDecoration;
@@ -54,9 +48,7 @@ import com.example.akki.popularmovies.rest.model.genre.MoviesGenreList;
 import com.example.akki.popularmovies.rest.model.movies.MoviesList;
 import com.example.akki.popularmovies.rest.service.MoviesApiService;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -97,13 +89,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private Unbinder unbinder;
     private MovieAdapter mAdapter;
     private MoviesApiService service;
+
     private List<AndroidMovies> databaseMoviesList = null;
+    private List<AndroidMovies> mMoviesData = null;
+    private List<MoviesGenre> mMoviesGenreData = null;
 
-    private List<AndroidMovies> mMoviesData;
-    private List<MoviesGenre> mMoviesGenreData;
-
-    private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
     private final String MOVIE_FRAGMENT_TAG = MovieFragment.class.getSimpleName();
+    private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
 
     public static final String SAVED_MOVIES_DATA = "MOVIES_DATA";
     public static final String SAVED_MOVIES_GENRE_DATA = "MOVIES_GENRE_DATA";
@@ -112,10 +104,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public static final String SAVED_SORT_BY_FAVOURITE = "FAVOURITE";
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
-    //private static Bundle mBundleRecyclerViewState = null;
     private Bundle mBundleRecyclerViewState;
-
-    private Uri moviesUri;
 
     public MovieFragment() {
 
@@ -134,7 +123,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         int spanCount = 3; // 3 columns
         int spacing = 10; // 50px
         boolean includeEdge = true;
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, includeEdge));
         recyclerView.setHasFixedSize(true);
 
         mAdapter = new MovieAdapter(getContext());
@@ -159,6 +148,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
             mAdapter.setMoviesList(mMoviesData);
             mAdapter.setGenreList(mMoviesGenreData);
+        }
+        else {
+            popular.setChecked(true);
+            top_rated.setChecked(false);
+            favourite.setChecked(false);
         }
 
 
@@ -190,22 +184,69 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        final OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new LoggingInterceptor())
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit restAdapter = new Retrofit.Builder()
+                .baseUrl(MOVIE_API_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory
+                        .create()).build();
+
+        service = restAdapter.create(MoviesApiService.class);
+
+        if (popular.isChecked())
+            updateMoviesList("popular");
+        else if (top_rated.isChecked())
+            updateMoviesList("top_rated");
+        else if (favourite.isChecked())
+            updateMoviesList("favourite");
+        else {
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(0, null, this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mMoviesData != null)
+            outState.putParcelableArrayList(SAVED_MOVIES_DATA, (ArrayList<? extends Parcelable>) mMoviesData);
+
+        if (mMoviesGenreData != null)
+            outState.putParcelableArrayList(SAVED_MOVIES_GENRE_DATA, (ArrayList<? extends Parcelable>) mMoviesGenreData);
+
+        outState.putBoolean(SAVED_SORT_BY_POPULAR, popular.isChecked());
+        outState.putBoolean(SAVED_SORT_BY_TOP_RATED, top_rated.isChecked());
+        outState.putBoolean(SAVED_SORT_BY_FAVOURITE, favourite.isChecked());
+
+        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(KEY_RECYCLER_STATE, listState);
+    }
+
     private void updateMoviesList(final String endpoint) {
 
-        //if(mBundleRecyclerViewState != null) {
-//            mMoviesData = mBundleRecyclerViewState.getParcelableArrayList(SAVED_MOVIES_DATA);
-//            mMoviesGenreData = mBundleRecyclerViewState.getParcelableArrayList(SAVED_MOVIES_GENRE_DATA);
-//
-//            mAdapter.setMoviesList(mMoviesData);
-//            mAdapter.setGenreList(mMoviesGenreData);
-        // }
-        // else {
-
         if (!endpoint.equals("favourite")) {
+
             if (AppStatus.getInstance(getActivity()).isOnline()) {
 
-                //Toast t = Toast.makeText(getContext(), onlineMessage, Toast.LENGTH_SHORT);
-                //t.show();
                 Snackbar snackbar = Snackbar.make(coordinatorLayout, onlineMessage, Snackbar.LENGTH_SHORT);
                 View sbView = snackbar.getView();
                 TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
@@ -213,10 +254,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 snackbar.show();
 
                 fetchMovieTask(endpoint);
+                if(mMoviesGenreData == null) {
+                    fetchMoviesGenreList();
+                }
             } else {
 
-                //Toast t = Toast.makeText(getContext(), notOnlineMessage, Toast.LENGTH_SHORT);
-                //t.show();
                 Snackbar snackbar = Snackbar
                         .make(coordinatorLayout, noInternetMessage, Snackbar.LENGTH_INDEFINITE)
                         .setAction("RETRY", new View.OnClickListener() {
@@ -234,6 +276,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 snackbar.show();
 
             }
+
         } else {
 
             Log.i(MOVIE_FRAGMENT_TAG, "Loading from Database!");
@@ -243,14 +286,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 mMoviesData = databaseMoviesList;
             }
         }
-        // }
-
     }
 
     private void fetchMovieTask(String endpoint) {
 
-
-        //MoviesApiService service = restAdapter.create(MoviesApiService.class);
         Call<MoviesList> movieResultCallback = null;
         switch (endpoint) {
             case "popular":
@@ -272,7 +311,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 if (call.isExecuted()) {
                     mAdapter.setMoviesList(response.body().getResults());
                     mMoviesData = response.body().getResults();
-                    fetchMoviesGenreList();
                 }
             }
 
@@ -303,117 +341,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        final OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new LoggingInterceptor())
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
-                .build();
 
-        Retrofit restAdapter = new Retrofit.Builder()
-                .baseUrl(MOVIE_API_URL)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory
-                        .create()).build();
-
-        service = restAdapter.create(MoviesApiService.class);
-
-        if (popular.isChecked())
-            updateMoviesList("popular");
-        else if (top_rated.isChecked())
-            updateMoviesList("top_rated");
-        else if (favourite.isChecked())
-            updateMoviesList("favourite");
-        else {
-        }
-    }
-
-    private void saveState() {
-        ContentValues[] valuesList = new ContentValues[databaseMoviesList.size()];
-        for (int i = 0; i < databaseMoviesList.size(); i++) {
-            ContentValues values = new ContentValues();
-            AndroidMovies MoviesData = databaseMoviesList.get(i);
-            values.put(MoviesTable.COLUMN_ID, MoviesData.getId());
-            values.put(MoviesTable.COLUMN_ORIGINAL_TITLE, MoviesData.getOriginal_title());
-            values.put(MoviesTable.COLUMN_OVERVIEW, MoviesData.getOverview());
-            values.put(MoviesTable.COLUMN_RELEASE_DATE, MoviesData.getRelease_date());
-            values.put(MoviesTable.COLUMN_GENRES, MoviesData.getGenre_names());
-            values.put(MoviesTable.COLUMN_VOTE_COUNT, MoviesData.getVote_count());
-            values.put(MoviesTable.COLUMN_RATING, MoviesData.getUser_rating());
-            values.put(MoviesTable.COLUMN_POPULARITY, MoviesData.getPopularity());
-            values.put(MoviesTable.COLUMN_POSTER_PATH, MoviesData.getPoster_path());
-            valuesList[i] = values;
-        }
-//        if (moviesUri == null) {
-//            // New movies data
-//            moviesUri = getContext().getContentResolver().bulkInsert(
-//                    MoviesContentProvider.CONTENT_URI, valuesList);
-//        } else {
-//            // Update movies data
-//            getContext().getContentResolver().update(moviesUri, valuesList, null, null);
-//        }
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        getLoaderManager().restartLoader(0, null, this);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        if (mMoviesData != null)
-            outState.putParcelableArrayList(SAVED_MOVIES_DATA, (ArrayList<? extends Parcelable>) mMoviesData);
-
-        if (mMoviesGenreData != null)
-            outState.putParcelableArrayList(SAVED_MOVIES_GENRE_DATA, (ArrayList<? extends Parcelable>) mMoviesGenreData);
-
-        outState.putBoolean(SAVED_SORT_BY_POPULAR, popular.isChecked());
-        outState.putBoolean(SAVED_SORT_BY_TOP_RATED, top_rated.isChecked());
-        outState.putBoolean(SAVED_SORT_BY_FAVOURITE, favourite.isChecked());
-
-        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
-        outState.putParcelable(KEY_RECYCLER_STATE, listState);
-//        mBundleRecyclerViewState = new Bundle();
-//        mBundleRecyclerViewState.putParcelableArrayList(SAVED_MOVIES_DATA, (ArrayList<? extends Parcelable>) mMoviesData);
-//
-//        mBundleRecyclerViewState.putParcelableArrayList(SAVED_MOVIES_GENRE_DATA, (ArrayList<? extends Parcelable>) mMoviesGenreData);
-//
-//        mBundleRecyclerViewState.putBoolean(SAVED_SORT_BY_POPULAR, popular.isChecked());
-//        mBundleRecyclerViewState.putBoolean(SAVED_SORT_BY_TOP_RATED, top_rated.isChecked());
-//        mBundleRecyclerViewState.putBoolean(SAVED_SORT_BY_FAVOURITE, favourite.isChecked());
-//
-//        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
-//        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
-    }
-
-    @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-//       if (savedInstanceState != null) {
-//           Parcelable listState = savedInstanceState.getParcelable(KEY_RECYCLER_STATE);
-//           recyclerView.getLayoutManager().onRestoreInstanceState(listState);
-//
-//           mAdapter.setMoviesList(savedInstanceState.<AndroidMovies>getParcelableArrayList(SAVED_MOVIES_DATA));
-//           mAdapter.setGenreList(savedInstanceState.<MoviesGenre>getParcelableArrayList(SAVED_MOVIES_GENRE_DATA));
-//
-//           popular.setChecked(savedInstanceState.getBoolean(SAVED_SORT_BY_POPULAR));
-//           top_rated.setChecked(savedInstanceState.getBoolean(SAVED_SORT_BY_TOP_RATED));
-//           favourite.setChecked(savedInstanceState.getBoolean(SAVED_SORT_BY_FAVOURITE));
-//       }
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -421,9 +349,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 MoviesTable.COLUMN_ORIGINAL_TITLE, MoviesTable.COLUMN_OVERVIEW,
                 MoviesTable.COLUMN_RELEASE_DATE, MoviesTable.COLUMN_GENRES,
                 MoviesTable.COLUMN_VOTE_COUNT, MoviesTable.COLUMN_RATING,
-                MoviesTable.COLUMN_POPULARITY, MoviesTable.COLUMN_POSTER_PATH};
-
-        //moviesUri = MoviesContentProvider.CONTENT_URI;
+                MoviesTable.COLUMN_POPULARITY, MoviesTable.COLUMN_POSTER_PATH, MoviesTable.COLUMN_BACKDROP_PATH};
 
         return new CursorLoader(getContext(),
                 MoviesContentProvider.CONTENT_URI, projection, null, null, null);
@@ -431,7 +357,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        databaseMoviesList = new ArrayList<>();
+        List<AndroidMovies> tmpDatabaseMoviesList = new ArrayList<>();
 
         if (data == null)
             return;
@@ -459,10 +385,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             Log.i("Cursor popularity", String.valueOf(data.getFloat(7)));
             movies.setPoster_path(data.getString(8));
             Log.i("Cursor posterPath", String.valueOf(data.getString(8)));
-            movies.setFavourite(1);
-            databaseMoviesList.add(movies);
+            movies.setBackdrop_path(data.getString(9));
+            Log.i("Cursor backdropPath", String.valueOf(data.getString(9)));
+            //movies.setFavourite(1);
+            tmpDatabaseMoviesList.add(movies);
         }
         data.close();
+
+        databaseMoviesList = new ArrayList<>();
+        databaseMoviesList = tmpDatabaseMoviesList;
+
+        if(favourite.isChecked()) {
+            mAdapter.setMoviesList(databaseMoviesList);
+        }
     }
 
     @Override

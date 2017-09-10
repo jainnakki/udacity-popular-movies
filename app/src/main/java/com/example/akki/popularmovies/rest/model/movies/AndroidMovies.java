@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class AndroidMovies implements Parcelable {
 
-    private List<Integer> mGenre_ids = new ArrayList<>();
+    private List<Integer> genre_ids = new ArrayList<>();
 
     private String original_title, poster_path, backdrop_path, overview, release_date, genre_names;
 
@@ -61,7 +61,7 @@ public class AndroidMovies implements Parcelable {
 
         this.poster_path = in.readString();
         this.original_title = in.readString();
-        this.mGenre_ids = in.readArrayList(Integer.class.getClassLoader());
+        this.genre_ids = in.readArrayList(Integer.class.getClassLoader());
         this.genre_names = in.readString();
         this.backdrop_path = in.readString();
         this.overview = in.readString();
@@ -85,7 +85,7 @@ public class AndroidMovies implements Parcelable {
 
         dest.writeString(this.poster_path);
         dest.writeString(this.original_title);
-        dest.writeList(this.mGenre_ids);
+        dest.writeList(this.genre_ids);
         dest.writeString(this.genre_names);
         dest.writeString(this.backdrop_path);
         dest.writeString(this.overview);
@@ -112,7 +112,7 @@ public class AndroidMovies implements Parcelable {
     }
 
     public List<Integer> getGenre_ids() {
-        return mGenre_ids;
+        return genre_ids;
     }
 
     public String getGenre_names() {
@@ -162,7 +162,7 @@ public class AndroidMovies implements Parcelable {
     }
 
     public void setGenre_ids(List<Integer> Genre_ids) {
-        this.mGenre_ids = Genre_ids;
+        this.genre_ids = Genre_ids;
     }
 
     public void setGenre_names(String Genre_names) {
