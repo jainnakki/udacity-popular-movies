@@ -34,14 +34,14 @@ import butterknife.ButterKnife;
 
 
 /**
- * Created by Akshay on 20-07-2017.
+ * Custom Adapter for movie trailer view
  */
 
 public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapter.ViewHolder> {
 
     private final Context context;
 
-    String videoKeys[];
+    private String[] videoKeys;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -75,27 +75,24 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
 
         String trailerThumbnailImage = "https://img.youtube.com/vi/" + videoKeys[position] + "/0.jpg";
-//        Picasso.with(context)
-//                .load(trailerThumbnailImage)
-//                .fit()
-//                .error(R.drawable.trailer_error)
-//                .into(holder.trailerImageView);
 
         Glide.with(context)
                 .load(trailerThumbnailImage)
                 .error(R.drawable.placeholder_trailer_thumbnail)
                 .centerCrop()
                 .into(holder.trailerImageView);
-        //listening to image click
+
         holder.trailerImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoKeys[position]));
+
+                int pos = holder.getAdapterPosition();
+                Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoKeys[pos]));
                 Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("http://www.youtube.com/watch?v=" + videoKeys[position]));
+                        Uri.parse("http://www.youtube.com/watch?v=" + videoKeys[pos]));
                 try {
                     context.startActivity(appIntent);
                 } catch (ActivityNotFoundException ex) {

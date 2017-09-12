@@ -20,10 +20,6 @@ import com.example.akki.popularmovies.rest.model.movies.AndroidMovies;
 
 import java.util.ArrayList;
 
-/**
- * Created by Akshay on 24-07-2017.
- */
-
 public class MoviesList {
 
     private int total_pages;

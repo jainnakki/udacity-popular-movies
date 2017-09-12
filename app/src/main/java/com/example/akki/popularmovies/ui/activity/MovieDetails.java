@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -48,6 +49,7 @@ import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
 import com.example.akki.popularmovies.rest.AppStatus;
+import com.example.akki.popularmovies.rest.model.review.MovieReview;
 import com.example.akki.popularmovies.ui.adapter.MovieReviewAdapter;
 import com.example.akki.popularmovies.R;
 import com.example.akki.popularmovies.data.MoviesContentProvider;
@@ -69,6 +71,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -114,9 +117,6 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
     @BindView(R.id.review_recycler_view)
     RecyclerView recyclerView;
-
-    //@BindView(R.id.viewPager)
-    //ViewPager viewPager;
     @BindView(R.id.trailer_recycler_view)
     RecyclerView trailerRecyclerView;
 
@@ -128,6 +128,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
     @BindView(R.id.movie_favourite_button)
     ToggleButton favouriteButton;
+
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
@@ -144,18 +145,24 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
     private File tmpPosterMyDir = null;
     private Bitmap tmpPosterBitmap = null;
-    private String IMAGE_TAG = null;
-    private File tmpHeaderPosterMyDir = null;
-    private Bitmap tmpHeaderPosterBitmap = null;
+
+    private List<MovieReview> mMoviesReviewData = null;
+    private String[] mVideoKeys = null;
 
     private MovieReviewAdapter mrAdapter;
-    private MoviesApiService service;
     private MovieTrailerAdapter trailerAdapter;
+
+    private MoviesApiService service;
 
     private final String LOG_TAG = MovieDetails.class.getSimpleName();
     private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
-    private String[] videoKeys = null;
+
     private static int flag;
+
+    private final String KEY_RECYCLER_TRAILER_STATE = "trailer_recycler_state";
+    private final String KEY_RECYCLER_REVIEW_STATE = "review_recycler_state";
+    private static final String SAVED_MOVIES_REVIEW_DATA = "MOVIES_REVIEW_DATA";
+    private static final String SAVED_MOVIES_TRAILER_DATA = "MOVIES_TRAILER_DATA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,53 +202,43 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
         service = restAdapter.create(MoviesApiService.class);
 
-        //Log.i(LOG_TAG, "MOVIE ID : " + (parcelableMovieData != null ? parcelableMovieData.getId
-        // () : null));
-        if (parcelableMovieData != null)
-            updateMovieDataList(parcelableMovieData.getId());
+        if (savedInstanceState != null) {
 
+            Parcelable reviewListState = savedInstanceState.getParcelable(KEY_RECYCLER_REVIEW_STATE);
+            if (reviewListState != null)
+                recyclerView.getLayoutManager().onRestoreInstanceState(reviewListState);
 
-        //Log.v(LOG_TAG, "IMAGE URL: " + parcelableMovieData.getPoster_path());
+            mMoviesReviewData = savedInstanceState.getParcelableArrayList(SAVED_MOVIES_REVIEW_DATA);
+            mrAdapter.setMovieReviewList(mMoviesReviewData);
 
-        String posterLoadingPath, headerPosterLoadingPath;
+            Parcelable trailerListState = savedInstanceState.getParcelable(KEY_RECYCLER_TRAILER_STATE);
+            if (trailerListState != null)
+                trailerRecyclerView.getLayoutManager().onRestoreInstanceState(trailerListState);
+
+            mVideoKeys = savedInstanceState.getStringArray(SAVED_MOVIES_TRAILER_DATA);
+            trailerAdapter.setVideoKeys(mVideoKeys);
+
+        } else {
+            if (parcelableMovieData != null)
+                updateMovieDataList(parcelableMovieData.getId());
+        }
+
+        String posterLoadingPath;
+        assert parcelableMovieData != null;
         if (parcelableMovieData.getFavourite() == 0) {
             posterLoadingPath = "http://image.tmdb.org/t/p/w185" + parcelableMovieData
                     .getPoster_path();
             Log.v(LOG_TAG, "POSTER URL NOT FAV: " + parcelableMovieData.getPoster_path());
-//            Picasso.with(this)
-//                    .load(posterLoadingPath)
-//                    .fit()
-//                    .error(R.drawable.error)
-//                    .into(movie_poster);
+
             Glide.with(this)
                     .load(posterLoadingPath)
                     .asBitmap()
                     .into(movie_poster);
 
-            headerPosterLoadingPath = "http://image.tmdb.org/t/p/w342" + parcelableMovieData
-                    .getBackdrop_path();
-            Log.v(LOG_TAG, "BACKDROP URL NOT FAV: " + parcelableMovieData.getBackdrop_path());
-//            Picasso.with(this)
-//                    .load(headerPosterLoadingPath)
-//                    .fit()
-//                    .placeholder(R.drawable.poster_placeholder_image)
-//                    .into(header_poster);
-
-            Glide.with(this)
-                    .load(headerPosterLoadingPath)
-                    .asBitmap()
-                    .placeholder(R.drawable.poster_placeholder_image)
-                    .into(header_poster);
-
         } else {
             posterLoadingPath = parcelableMovieData.getPoster_path();
             Log.v(LOG_TAG, "IMAGE URL FAV: " + parcelableMovieData.getPoster_path());
             Uri posterImageUri = Uri.fromFile(new File(posterLoadingPath));
-//            Picasso.with(this)
-//                    .load(imageUri)
-//                    .fit()
-//                    .error(R.drawable.error)
-//                    .into(movie_poster);
 
             Glide.with(this)
                     .load(posterImageUri)
@@ -249,32 +246,30 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                     .error(R.drawable.error)
                     .into(movie_poster);
 
-
-            headerPosterLoadingPath = parcelableMovieData.getBackdrop_path();
-            Log.v(LOG_TAG, "BACKDROP URL FAV: " + parcelableMovieData.getBackdrop_path());
-            Uri headerPosterImageUri = Uri.fromFile(new File(headerPosterLoadingPath));
-
-            Glide.with(this)
-                    .load(headerPosterImageUri)
-                    .asBitmap()
-                    .placeholder(R.drawable.poster_placeholder_image)
-                    .into(header_poster);
         }
+
+
+        String headerPosterLoadingPath = "http://image.tmdb.org/t/p/w342" + parcelableMovieData
+                .getBackdrop_path();
+        Log.v(LOG_TAG, "BACKDROP URL NOT FAV: " + parcelableMovieData.getBackdrop_path());
+
+        Glide.with(this)
+                .load(headerPosterLoadingPath)
+                .asBitmap()
+                .placeholder(R.drawable.poster_placeholder_image)
+                .into(header_poster);
 
         title.setText(parcelableMovieData.getOriginal_title());
 
         int popularityScore = (int) Math.ceil(parcelableMovieData.getPopularity());
-        Log.d("POPULARITY: ", String.valueOf(parcelableMovieData.getPopularity()));
         String pScore = String.valueOf(popularityScore) + "%";
         movie_popularity.setText(pScore);
 
         int movieVotes = parcelableMovieData.getVote_count();
-        Log.d("MOVIE VOTES: ", String.valueOf(parcelableMovieData.getVote_count()));
         String mVotes = movieVotes + " votes";
         movie_votes.setText(mVotes);
 
         overviewExpTv.setText(parcelableMovieData.getOverview());
-        Log.i(LOG_TAG, "MOVIE RATING: " + parcelableMovieData.getUser_rating());
         String ratingString = String.valueOf(parcelableMovieData.getUser_rating()) + maxRating;
         rating.setText(ratingString);
 
@@ -283,10 +278,10 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                     .getRelease_date());
             String formattedDate = new SimpleDateFormat("MMM dd, yyyy", Locale.US).format(date);
             DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
-            Date date1 = new SimpleDateFormat("MMM dd, yyyy", Locale.US).parse(formattedDate);
-            String formattedDate1 = dateFormat.format(date1);
-            //release_date.setText(formattedDate);
-            release_date.setText(formattedDate1);
+            Date finalDate = new SimpleDateFormat("MMM dd, yyyy", Locale.US).parse(formattedDate);
+            String movieReleaseDate = dateFormat.format(finalDate);
+
+            release_date.setText(movieReleaseDate);
         } catch (ParseException e) {
             e.printStackTrace();
             release_date.setText(parcelableMovieData.getRelease_date());
@@ -297,8 +292,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
         if (parcelableMovieData.getFavourite() == 0) {
             favouriteButton.setChecked(false);
-        }
-        else {
+        } else {
             favouriteButton.setChecked(true);
         }
 
@@ -313,16 +307,21 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             }
         });
 
+
+        /**
+         * Floating Action Button added for styling, no functional operation assigned!!
+         * Optional, you may wish to implement any feature you want.
+         */
         flag = 0;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 flag++;
-                if(flag%2 == 1) {
+                if (flag % 2 == 1) {
                     fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R
                             .drawable.favourite));
                 }
-                if(flag%2 == 0) {
+                if (flag % 2 == 0) {
                     fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R
                             .drawable.favourite_border));
                 }
@@ -331,28 +330,40 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mMoviesReviewData != null)
+            outState.putParcelableArrayList(SAVED_MOVIES_REVIEW_DATA, (ArrayList<? extends Parcelable>) mMoviesReviewData);
+
+        Parcelable reviewListState = recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(KEY_RECYCLER_REVIEW_STATE, reviewListState);
+
+        if (mVideoKeys != null)
+            outState.putStringArray(SAVED_MOVIES_TRAILER_DATA, mVideoKeys);
+
+        Parcelable trailerListState = trailerRecyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(KEY_RECYCLER_TRAILER_STATE, trailerListState);
+    }
+
+
     private void saveMovieDetailsInDatabase(AndroidMovies MoviesData) {
         String posterImageURL = "http://image.tmdb.org/t/p/w185" + MoviesData.getPoster_path();
-        String headerPosterImageURL = "http://image.tmdb.org/t/p/w342" + MoviesData.getBackdrop_path();
-        String poster_TAG = "poster";
-        String headerPoster_TAG = "headerPoster";
         String posterImagePathOnStorage = null;
-        String headerPosterImagePathOnStorage = null;
 
         try {
-            posterImagePathOnStorage = saveImageOffline(posterImageURL, MoviesData.getId(), poster_TAG);
-            headerPosterImagePathOnStorage = saveImageOffline(headerPosterImageURL, MoviesData.getId(), headerPoster_TAG);
+            posterImagePathOnStorage = saveImageOffline(posterImageURL, MoviesData.getId());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (posterImagePathOnStorage != null && headerPosterImagePathOnStorage != null) {
+        if (posterImagePathOnStorage != null) {
             Log.i("Offline Path Saved 1: ", posterImagePathOnStorage);
-            Log.i("Offline Path Saved 2: ", headerPosterImagePathOnStorage);
-            Bitmap bmap1 = BitmapFactory.decodeFile(posterImagePathOnStorage);
-            Bitmap bmap2 = BitmapFactory.decodeFile(headerPosterImagePathOnStorage);
-            movie_poster.setImageBitmap(bmap1);
-            header_poster.setImageBitmap(bmap2);
+
+            Bitmap bmap = BitmapFactory.decodeFile(posterImagePathOnStorage);
+            movie_poster.setImageBitmap(bmap);
             Log.i("Image Set", "Success");
 
             ContentValues values = new ContentValues();
@@ -365,7 +376,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
             values.put(MoviesTable.COLUMN_RATING, MoviesData.getUser_rating());
             values.put(MoviesTable.COLUMN_POPULARITY, MoviesData.getPopularity());
             values.put(MoviesTable.COLUMN_POSTER_PATH, posterImagePathOnStorage);
-            values.put(MoviesTable.COLUMN_BACKDROP_PATH, headerPosterImagePathOnStorage);
+            values.put(MoviesTable.COLUMN_BACKDROP_PATH, MoviesData.getBackdrop_path());
 
             getContentResolver().insert(MoviesContentProvider.CONTENT_URI, values);
 
@@ -383,7 +394,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         snackbar.show();
     }
 
-    private String saveImageOffline(String ImageUrl, final int imageId, String TAG) throws IOException {
+    private String saveImageOffline(String ImageUrl, final int imageId) throws IOException {
 
 
         InputStream input = null;
@@ -394,51 +405,47 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
             URL url = new URL(ImageUrl);
 
-
-            if (!myDir.exists())
+            if (!myDir.exists()) {
                 myDir.mkdirs();
-
-            String outputName = null;
-            if(TAG.equals("poster")) {
-                outputName = imageId + "-thumbnail.jpg";
-            }
-            if(TAG.equals("headerPoster")) {
-                outputName = imageId + "-header-thumbnail.jpg";
             }
 
-            assert outputName != null;
+            String outputName = imageId + "-thumbnail.jpg";
 
             myDir = new File(myDir, outputName);
 
             input = url.openConnection().getInputStream();
-
             Bitmap bitmap = BitmapFactory.decodeStream(input);
 
             if (isStoragePermissionGranted()) {
                 SaveImage(bitmap, myDir);
             } else {
-                IMAGE_TAG  = TAG;
-
-                if(IMAGE_TAG.equals("poster")) {
-                    tmpPosterBitmap = bitmap;
-                    tmpPosterMyDir = myDir;
-                }
-
-                if(IMAGE_TAG.equals("headerPoster")) {
-                    tmpHeaderPosterBitmap = bitmap;
-                    tmpHeaderPosterMyDir = myDir;
-                }
+                tmpPosterBitmap = bitmap;
+                tmpPosterMyDir = myDir;
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (input != null)
+            if (input != null) {
                 input.close();
+            }
         }
 
         return myDir.getPath();
+    }
+
+    private void SaveImage(Bitmap finalBitmap, File myDir) {
+
+        try {
+            FileOutputStream out = new FileOutputStream(myDir);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean isStoragePermissionGranted() {
@@ -454,24 +461,10 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                         .WRITE_EXTERNAL_STORAGE}, 2);
                 return false;
             }
-        } else { //permission is automatically granted on sdk<23 upon installation
+        } else {
+            //permission is automatically granted on sdk<23 upon installation
             Log.v(TAG, "Permission is granted");
             return true;
-        }
-    }
-
-    private void SaveImage(Bitmap finalBitmap, File myDir) {
-
-        try {
-            Log.i("myDir",myDir.getPath());
-            FileOutputStream out = new FileOutputStream(myDir);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-
-        } catch (Exception e) {
-            Log.e("IMAGE SAVING ERROR",e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -487,11 +480,8 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
 
-                    if(IMAGE_TAG.equals("poster") && tmpPosterBitmap != null && tmpPosterMyDir != null)
+                    if (tmpPosterBitmap != null && tmpPosterMyDir != null)
                         SaveImage(tmpPosterBitmap, tmpPosterMyDir);
-
-                    if(IMAGE_TAG.equals("headerPoster") && tmpHeaderPosterBitmap != null && tmpHeaderPosterMyDir != null)
-                        SaveImage(tmpHeaderPosterBitmap, tmpHeaderPosterMyDir);
 
                 } else {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
@@ -506,18 +496,6 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
                 Toast.LENGTH_SHORT).show();
     }
 
-    private void setVideoKeys(List<MovieVideo> VideoList) {
-        videoKeys = new String[VideoList.size()];
-        MovieVideo video;
-        for (int i = 0; i < videoKeys.length; i++) {
-            video = VideoList.get(i);
-            videoKeys[i] = video.getKey();
-        }
-
-        if (videoKeys != null) {
-            trailerAdapter.setVideoKeys(videoKeys);
-        }
-    }
 
     private void updateMovieDataList(int movieId) {
 
@@ -535,7 +513,6 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
 
     private void fetchMovieVideoTask(int movieId) {
 
-        //MoviesApiService service = restAdapter.create(MoviesApiService.class);
         Call<MovieVideoList> videoResultCallback;
         if (service != null) {
             videoResultCallback = service.getMovieVideoList(movieId);
@@ -557,9 +534,22 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         }
     }
 
+    private void setVideoKeys(List<MovieVideo> VideoList) {
+        String[] videoKeys = new String[VideoList.size()];
+        MovieVideo video;
+        for (int i = 0; i < videoKeys.length; i++) {
+            video = VideoList.get(i);
+            videoKeys[i] = video.getKey();
+        }
+
+        if (videoKeys != null) {
+            trailerAdapter.setVideoKeys(videoKeys);
+            mVideoKeys = videoKeys;
+        }
+    }
+
     private void fetchMovieReviewTask(int movieId) {
 
-        //MoviesApiService service = restAdapter.create(MoviesApiService.class);
         Call<MovieReviewList> reviewResultCallback;
         if (service != null) {
             reviewResultCallback = service.getMovieReviewList(movieId);
@@ -573,6 +563,7 @@ public class MovieDetails extends AppCompatActivity implements Callback<MovieRev
         Log.i("review response code", String.valueOf(response.code()));
         if (call.isExecuted()) {
             mrAdapter.setMovieReviewList(response.body().getResults());
+            mMoviesReviewData = response.body().getResults();
         }
     }
 

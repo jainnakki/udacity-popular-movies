@@ -24,10 +24,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/margin_mr_medium"
         android:background="@drawable/rounded_corner"
         android:orientation="vertical"
-        android:padding="5dp">
+        android:padding="@dimen/padding_mr_small">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -45,10 +45,10 @@
                 android:id="@+id/review_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="2dp"
-                android:paddingLeft="5dp"
-                android:text="@string/sample_review_author_string"
-                android:textSize="@dimen/review_text_medium"
+                android:layout_marginLeft="@dimen/margin_mr_very_small"
+                android:paddingLeft="@dimen/padding_mr_small"
+                android:text="@string/placeholder_user_name"
+                android:textSize="@dimen/text_mr_medium"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -57,16 +57,16 @@
             android:id="@+id/review_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:padding="@dimen/review_content_padding"
-            android:text="@string/sample_review_content_string"
-            android:textSize="@dimen/review_text_large" />
+            android:layout_marginTop="@dimen/margin_mr_very_small"
+            android:padding="@dimen/padding_mr_normal"
+            android:text="@string/placeholder_user_review"
+            android:textSize="@dimen/text_mr_large" />
 
     </LinearLayout>
 
     <View
         android:layout_width="fill_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/height_mr_very_small"
         android:background="#ccc" />
 
 </FrameLayout>

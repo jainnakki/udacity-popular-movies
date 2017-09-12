@@ -35,7 +35,7 @@ import butterknife.ButterKnife;
 
 
 /**
- * Created by Akshay on 20-07-2017.
+ * Custom adapter for movie reviews
  */
 
 public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.ViewHolder> {
@@ -68,7 +68,7 @@ public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.
 
     public MovieReviewAdapter(Context context) {
         super();
-        Context context1 = context;
+        //Context context1 = context;
         this.MovieReviewList = new ArrayList<>();
         this.MovieReviewList.add(addDummyMovieReviewData());
     }

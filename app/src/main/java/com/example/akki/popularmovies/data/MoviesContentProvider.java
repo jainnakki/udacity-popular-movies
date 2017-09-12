@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * Created by Akshay on 02-08-2017.
+ * Content Provider for Movies Database
  */
 
 public class MoviesContentProvider extends ContentProvider {
@@ -199,6 +199,7 @@ public class MoviesContentProvider extends ContentProvider {
                     Arrays.asList(projection));
             HashSet<String> availableColumns = new HashSet<>(
                     Arrays.asList(available));
+
             // check if all columns which are requested are available
             if (!availableColumns.containsAll(requestedColumns)) {
                 throw new IllegalArgumentException(

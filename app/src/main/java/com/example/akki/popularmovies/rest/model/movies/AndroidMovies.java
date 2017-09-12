@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Akki on 05-09-2016.
  * Model class for details of the movie
  */
 public class AndroidMovies implements Parcelable {

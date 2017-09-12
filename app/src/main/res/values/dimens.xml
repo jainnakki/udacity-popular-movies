@@ -19,52 +19,66 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
 
-    <dimen name="sort_by_padding">8dip</dimen>
-    <dimen name="sort_by_right_padding">20dp</dimen>
-    <dimen name="sort_by_type_textsize">10sp</dimen>
+    <!-- fragment_main.xml -->
+    <dimen name="padding_fm_small">8dip</dimen>
+    <dimen name="padding_fm_large">20dp</dimen>
+    <dimen name="text_fm_medium">10sp</dimen>
 
-    <dimen name="movie_poster_height">185dp</dimen>
-    <dimen name="movie_poster_width">123dp</dimen>
+    <!-- fragment_movie_details.xml -->
+    <dimen name="margin_fmd_small">32dp</dimen>
+    <dimen name="margin_fmd_medium">48dp</dimen>
+    <dimen name="margin_fmd_large">64dp</dimen>
+    <dimen name="fmd_header_poster_height">192dp</dimen>
+    <dimen name="fmd_fab_margin">16dp</dimen>
 
-    <dimen name="preview_poster_width">123dp</dimen>
-    <dimen name="preview_poster_height">82dp</dimen>
+    <!-- movie_details.xml -->
+    <dimen name="padding_md_small">5dip</dimen>
+    <dimen name="padding_md_medium">7dip</dimen>
+    <dimen name="dimen_md_zero">0dp</dimen>
+    <dimen name="margin_md_small">5dp</dimen>
+    <dimen name="margin_md_medium">8dp</dimen>
+    <dimen name="margin_md_large">10dp</dimen>
+    <dimen name="margin_md_very_large">11dp</dimen>
+    <dimen name="margin_md_max">18dp</dimen>
+    <dimen name="padding_md_very_large">40dp</dimen>
+    <dimen name="md_poster_width">123dp</dimen>
+    <dimen name="md_poster_height">185dp</dimen>
+    <dimen name="icons_md_dimen">30dp</dimen>
+    <dimen name="md_favourite_btn_width">147dp</dimen>
+    <dimen name="md_favourite_btn_height">48dp</dimen>
+    <dimen name="text_md_small">11sp</dimen>
+    <dimen name="text_md_medium">12sp</dimen>
+    <dimen name="text_md_large">14sp</dimen>
+    <dimen name="text_md_very_large">15sp</dimen>
+    <dimen name="text_md_max">16sp</dimen>
+    <dimen name="md_rel_date_width">123dp</dimen>
 
-    <dimen name="line_width_height_val">1dp</dimen>
+    <!-- movie_item.xml -->
+    <dimen name="height_mi_very_small">1dp</dimen>
+    <dimen name="margin_mi_large">16dp</dimen>
+    <dimen name="radius_mi_large">8dp</dimen>
+    <dimen name="mi_poster_dimen">120dp</dimen>
+    <dimen name="padding_mi_small">4dp</dimen>
+    <dimen name="text_mi_small">10sp</dimen>
+    <dimen name="text_mi_medium">13sp</dimen>
+    <dimen name="padding_mi_large">8dp</dimen>
 
-    <dimen name="movie_details_padding">10dip</dimen>
-    <dimen name="movie_details_left_margin">2dp</dimen>
-
-    <dimen name="movie_title_textsize">15sp</dimen>
-
-    <dimen name="default_bottom_margin">2dp</dimen>
-    <dimen name="default_icon_size">20dp</dimen>
-    <dimen name="default_text_padding">5dip</dimen>
-
-    <dimen name="normal_text_size">13sp</dimen>
-    <dimen name="small_text_size">11sp</dimen>
-    <dimen name="medium_text_size">12sp</dimen>
-
-    <dimen name="movie_votes_padding">15dip</dimen>
-
-    <dimen name="movie_overview_text_size">15sp</dimen>
-
-    <dimen name="collapse_image_button_padding">7dip</dimen>
-
-    <dimen name="progress_bar_margin_val">20dp</dimen>
-
-    <dimen name="home_view_poster_size">120dp</dimen>
-    <dimen name="home_view_text_height">60dp</dimen>
-    <dimen name="home_view_title_height">40dp</dimen>
-    <dimen name="home_view_popularity_height">15dp</dimen>
-
+    <!-- movie_review.xml -->
+    <dimen name="margin_mr_medium">10dp</dimen>
+    <dimen name="height_mr_very_small">1dp</dimen>
+    <dimen name="text_mr_medium">12sp</dimen>
+    <dimen name="text_mr_large">13sp</dimen>
+    <dimen name="padding_mr_normal">6dip</dimen>
+    <dimen name="margin_mr_very_small">2dp</dimen>
     <dimen name="no_user_dimens">50dp</dimen>
+    <dimen name="padding_mr_small">5dp</dimen>
 
-    <dimen name="review_text_medium">12sp</dimen>
-    <dimen name="review_text_large">13sp</dimen>
-    <dimen name="review_content_padding">6dip</dimen>
-    <dimen name="margin_ct_small">32dp</dimen>
-    <dimen name="margin_ct_medium">48dp</dimen>
-    <dimen name="margin_ct_large">64dp</dimen>
-    <dimen name="header_poster_height">192dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
+    <!-- movie_trailer.xml -->
+    <dimen name="margin_mt_medium">8dp</dimen>
+    <dimen name="preview_play_width">123dp</dimen>
+    <dimen name="preview_play_height">82dp</dimen>
+    <dimen name="trailer_thumbnail_width">172dp</dimen>
+    <dimen name="trailer_thumbnail_height">90dp</dimen>
+    <dimen name="height_md_medium">15dp</dimen>
+
 </resources>

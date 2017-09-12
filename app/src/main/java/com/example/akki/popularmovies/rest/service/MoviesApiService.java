@@ -17,7 +17,6 @@
 package com.example.akki.popularmovies.rest.service;
 
 /**
- * Created by Akshay on 24-07-2017.
  * Interface for network calls using retrofit
  */
 
@@ -46,4 +45,5 @@ public interface MoviesApiService {
 
     @GET("movie/{id}/videos")
     Call<MovieVideoList> getMovieVideoList(@Path("id") int movieId);
+
 }

@@ -24,15 +24,16 @@
     <string name="string_sort_by">Sort by</string>
     <string name="string_popular">Popular</string>
     <string name="string_top_rated">Top rated</string>
-    <string name="heading_original_title">Beauty and the Beast</string>
+    <string name="placeholder_movie_title">Beauty and the Beast</string>
     <string name="max_rating">/10</string>
     <string name="online_status">You are online!!!!</string>
     <string name="notOnline_status">You are not online!!!!</string>
     <string name="noInternet_status">No internet connection!</string>
     <string name="user_image_content_desc">default image loaded for user</string>
     <string name="string_favourite">Favourite</string>
-    <string name="sample_review_content_string">Very epic movie, strong storyline and also stunning graphics.. This is very recommended movie to watch with entire family.</string>
-    <string name="sample_review_author_string">HELLO</string>
+    <string name="placeholder_user_review">Very epic movie, strong storyline and also stunning graphics..
+        This is very recommended movie to watch with entire family.</string>
+    <string name="placeholder_user_name">HELLO</string>
     <string name="movie_poster_content_desc">movie poster, also on clicking launches trailer of movie</string>
     <string name="video_prev_play_content_desc">preview play placeholder image on top of image poster</string>
     <string name="movie_popularity_icon_desc">movie popularity icon</string>
@@ -43,4 +44,12 @@
     <string name="mark_unfavourite_text">Mark as Unfavourite</string>
     <string name="movieFavourite_status">Movie added to favourite!</string>
     <string name="movieNotFavourite_status">Movie removed from favourite!</string>
+    <string name="placeholder_movie_votes">3441 votes</string>
+    <string name="placeholder_movie_rating">7.8/10</string>
+    <string name="placeholder_movie_genre">Science Fiction | Science Fiction | Science Fiction</string>
+    <string name="placeholder_release_date">Sep 17, 2017</string>
+    <string name="placeholder_hello_world_text">Hello World</string>
+    <string name="placeholder_movie_popularity">78%</string>
+    <string name="placeholder_movie_overview">Minions Stuart, Kevin and Bob are recruited by Scarlet Overkill,
+        a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.</string>
 </resources>

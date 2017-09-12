@@ -21,7 +21,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Created by Akshay on 24-07-2017.
+ * custom grid item spacing decoration class for recycler view
+ * refer comments on right side of statements for easy understanding.
  */
 
 public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {

@@ -36,15 +36,15 @@ android:fitsSystemWindows="true">
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         app:contentScrim="?attr/colorPrimary"
-        app:expandedTitleMarginBottom="@dimen/margin_ct_small"
-        app:expandedTitleMarginEnd="@dimen/margin_ct_large"
-        app:expandedTitleMarginStart="@dimen/margin_ct_medium"
+        app:expandedTitleMarginBottom="@dimen/margin_fmd_small"
+        app:expandedTitleMarginEnd="@dimen/margin_fmd_large"
+        app:expandedTitleMarginStart="@dimen/margin_fmd_medium"
         app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
         <ImageView
             android:id="@+id/headerPoster"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/header_poster_height"
+            android:layout_height="@dimen/fmd_header_poster_height"
             android:background="@drawable/poster_placeholder_image"
             android:fitsSystemWindows="true"
             android:scaleType="centerCrop"
@@ -62,7 +62,7 @@ android:fitsSystemWindows="true">
 <android.support.v4.widget.NestedScrollView
     android:id="@+id/scroll"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:clipToPadding="false"
     android:layout_gravity="fill_vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -76,7 +76,7 @@ android:fitsSystemWindows="true">
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="@dimen/fmd_fab_margin"
         android:src="@drawable/favourite_border"
         android:backgroundTint="@color/cardview_light_background"/>
 

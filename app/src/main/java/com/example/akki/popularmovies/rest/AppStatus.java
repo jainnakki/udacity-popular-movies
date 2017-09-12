@@ -22,7 +22,6 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 /**
- * Created by Akki on 08-09-2016.
  * Checks internet connectivity
  */
 public class AppStatus {

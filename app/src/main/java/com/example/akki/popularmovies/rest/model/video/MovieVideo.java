@@ -20,7 +20,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Created by Akshay on 29-07-2017.
  * Model class for movie video details
  */
 

@@ -20,7 +20,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 /**
- * Created by Akshay on 02-08-2017.
+ * Movies Table
  */
 
 public class MoviesTable {

@@ -17,8 +17,7 @@
 package com.example.akki.popularmovies.ui.listener;
 
 /**
- * Created by Akshay on 24-07-2017.
- * Custom onClick Listener for Recycler View (Optional for use)
+ * Custom onClick listener for recycler view (Optional for use)
  */
 
 import android.content.Context;

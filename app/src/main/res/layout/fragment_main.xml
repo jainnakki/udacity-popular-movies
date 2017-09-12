@@ -41,13 +41,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/sort_by_padding"
+        android:padding="@dimen/padding_fm_small"
         android:textAlignment="center">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="@dimen/sort_by_right_padding"
+            android:paddingRight="@dimen/padding_fm_large"
             android:text="@string/string_sort_by" />
 
         <CheckBox
@@ -56,21 +56,21 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/string_popular"
-            android:textSize="@dimen/sort_by_type_textsize" />
+            android:textSize="@dimen/text_fm_medium" />
 
         <CheckBox
             android:id="@+id/checkbox_top_rated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/string_top_rated"
-            android:textSize="@dimen/sort_by_type_textsize" />
+            android:textSize="@dimen/text_fm_medium" />
 
         <CheckBox
             android:id="@+id/checkbox_favourite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/string_favourite"
-            android:textSize="@dimen/sort_by_type_textsize" />
+            android:textSize="@dimen/text_fm_medium" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

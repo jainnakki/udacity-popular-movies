@@ -20,10 +20,6 @@ import com.example.akki.popularmovies.rest.model.review.MovieReview;
 
 import java.util.ArrayList;
 
-/**
- * Created by Akshay on 28-07-2017.
- */
-
 public class MovieReviewList {
 
     private Integer id;

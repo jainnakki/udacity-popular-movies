@@ -18,12 +18,7 @@ package com.example.akki.popularmovies.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.net.Uri;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,10 +28,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.akki.popularmovies.rest.AppStatus;
 import com.example.akki.popularmovies.R;
 import com.example.akki.popularmovies.rest.model.movies.AndroidMovies;
@@ -55,7 +46,7 @@ import butterknife.ButterKnife;
 
 
 /**
- * Created by Akshay on 20-07-2017.
+ * Custom movie adapter class for movies recycler view in MoviesFragment Class
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
@@ -195,19 +186,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                         }
                     });
 
-//            Glide.with(context)
-//                    .load(posterLoadingPath)
-//                    .fitCenter()
-//                    .error(R.drawable.error)
-//                    .into(new SimpleTarget<GlideDrawable>() {
-//                        @Override
-//                        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-//                            if (holder.progressBar != null) {
-//                                holder.progressBar.setVisibility(View.GONE);
-//                            }
-//                            holder.moviePoster.setImageDrawable(resource);
-//                        }
-//                    });
 
         } else {
             Uri imageUri = Uri.fromFile(new File(posterLoadingPath));
@@ -231,12 +209,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         }
 
         holder.movieTitle.setText(movies.getOriginal_title());
+
         int popularityScore = (int) Math.ceil(movies.getPopularity());
         Log.d("POPULARITY SCORE ADAP", String.valueOf(movies.getPopularity()));
         String pScore = String.valueOf(popularityScore) + "%";
         holder.moviePopularity.setText(pScore);
 
         final String finalGenre_names = genre_names;
+
         holder.moviePoster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -255,6 +235,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 movie.setOverview(movies.getOverview());
                 movie.setRelease_date(movies.getRelease_date());
                 movie.setFavourite(movies.getFavourite());
+
                 intent.putExtra("movie_details", movie);
 
                 context.startActivity(intent);

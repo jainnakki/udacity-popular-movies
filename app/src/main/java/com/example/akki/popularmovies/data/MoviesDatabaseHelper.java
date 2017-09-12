@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by Akshay on 02-08-2017.
+ * SQLite OpenHelper for Movies
  */
 
 public class MoviesDatabaseHelper extends SQLiteOpenHelper {

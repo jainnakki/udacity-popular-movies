@@ -19,7 +19,6 @@ package com.example.akki.popularmovies.rest;
 import android.util.Log;
 
 import com.example.akki.popularmovies.BuildConfig;
-import com.example.akki.popularmovies.R;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -30,9 +29,6 @@ import okhttp3.Request;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 
-/**
- * Created by Akshay on 24-07-2017.
- */
 
 public class LoggingInterceptor implements Interceptor {
     @Override
@@ -75,7 +71,7 @@ public class LoggingInterceptor implements Interceptor {
         try {
             final Request copy = request.newBuilder().build();
             final Buffer buffer = new Buffer();
-            if (copy != null && copy.body() != null) // make sure its not null to avoif NPE
+            if (copy != null && copy.body() != null) // make sure its not null to avoid NPE
                 copy.body().writeTo(buffer);
             return buffer.readUtf8();
         } catch (final IOException e) {

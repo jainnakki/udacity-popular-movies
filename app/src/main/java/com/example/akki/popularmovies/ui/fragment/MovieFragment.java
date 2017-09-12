@@ -97,14 +97,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private final String MOVIE_FRAGMENT_TAG = MovieFragment.class.getSimpleName();
     private static final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
 
-    public static final String SAVED_MOVIES_DATA = "MOVIES_DATA";
-    public static final String SAVED_MOVIES_GENRE_DATA = "MOVIES_GENRE_DATA";
-    public static final String SAVED_SORT_BY_POPULAR = "POPULAR";
-    public static final String SAVED_SORT_BY_TOP_RATED = "TOP_RATED";
-    public static final String SAVED_SORT_BY_FAVOURITE = "FAVOURITE";
+    private static final String SAVED_MOVIES_DATA = "MOVIES_DATA";
+    private static final String SAVED_MOVIES_GENRE_DATA = "MOVIES_GENRE_DATA";
+    private static final String SAVED_SORT_BY_POPULAR = "POPULAR";
+    private static final String SAVED_SORT_BY_TOP_RATED = "TOP_RATED";
+    private static final String SAVED_SORT_BY_FAVOURITE = "FAVOURITE";
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
-    private Bundle mBundleRecyclerViewState;
 
     public MovieFragment() {
 
@@ -123,33 +122,32 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         int spanCount = 3; // 3 columns
         int spacing = 10; // 50px
         boolean includeEdge = true;
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, includeEdge));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
         recyclerView.setHasFixedSize(true);
 
         mAdapter = new MovieAdapter(getContext());
         recyclerView.setAdapter(mAdapter);
 
-        //RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         RecyclerView.LayoutManager mLayoutManager = new StaggeredGridLayoutManager(3, 1);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        mBundleRecyclerViewState = savedInstanceState;
+        Bundle mBundleRecyclerViewState = savedInstanceState;
         if (mBundleRecyclerViewState != null) {
             Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            if (listState != null)
+            if (listState != null) {
                 recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+            }
 
             popular.setChecked(mBundleRecyclerViewState.getBoolean(SAVED_SORT_BY_POPULAR));
             top_rated.setChecked(mBundleRecyclerViewState.getBoolean(SAVED_SORT_BY_TOP_RATED));
             favourite.setChecked(mBundleRecyclerViewState.getBoolean(SAVED_SORT_BY_FAVOURITE));
 
             mMoviesData = mBundleRecyclerViewState.getParcelableArrayList(SAVED_MOVIES_DATA);
-            mMoviesGenreData = mBundleRecyclerViewState.getParcelableArrayList(SAVED_MOVIES_GENRE_DATA);
-
             mAdapter.setMoviesList(mMoviesData);
+
+            mMoviesGenreData = mBundleRecyclerViewState.getParcelableArrayList(SAVED_MOVIES_GENRE_DATA);
             mAdapter.setGenreList(mMoviesGenreData);
-        }
-        else {
+        } else {
             popular.setChecked(true);
             top_rated.setChecked(false);
             favourite.setChecked(false);
@@ -254,7 +252,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 snackbar.show();
 
                 fetchMovieTask(endpoint);
-                if(mMoviesGenreData == null) {
+                if (mMoviesGenreData == null) {
                     fetchMoviesGenreList();
                 }
             } else {
@@ -302,6 +300,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             default:
                 Log.d("Endpoint error", "End point not accepted, data corrupted!!");
         }
+
         assert movieResultCallback != null;
 
         movieResultCallback.enqueue(new Callback<MoviesList>() {
@@ -340,7 +339,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             }
         });
     }
-
 
 
     @Override
@@ -387,7 +385,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             Log.i("Cursor posterPath", String.valueOf(data.getString(8)));
             movies.setBackdrop_path(data.getString(9));
             Log.i("Cursor backdropPath", String.valueOf(data.getString(9)));
-            //movies.setFavourite(1);
+
             tmpDatabaseMoviesList.add(movies);
         }
         data.close();
@@ -395,7 +393,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         databaseMoviesList = new ArrayList<>();
         databaseMoviesList = tmpDatabaseMoviesList;
 
-        if(favourite.isChecked()) {
+        if (favourite.isChecked()) {
             mAdapter.setMoviesList(databaseMoviesList);
         }
     }
