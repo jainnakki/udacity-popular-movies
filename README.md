@@ -37,7 +37,10 @@ gradle.properties
 
 * [ButterKnife](https://github.com/JakeWharton/butterknife)
 * [Retrofit](https://github.com/square/retrofit)
+* [OkHttp](https://github.com/square/okhttp)
+* [Picasso](https://github.com/square/picasso)
 * [Glide](https://github.com/bumptech/glide)
+* [ExpandableTextView](https://github.com/Manabu-GT/ExpandableTextView)
 
 ## Android Developer Nanodegree
 [![udacity][1]][2]
